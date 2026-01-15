@@ -1,11 +1,17 @@
-
-// translations of each text
 export const translations = {
   en: {
     login: 'Manager Login',
+    signup: 'Create Account',
     email: 'Email',
     password: 'Password',
+    confirmPassword: 'Confirm Password',
+    name: 'Full Name',
     signin: 'Sign In',
+    signupButton: 'Sign Up',
+    alreadyHaveAccount: 'Already have an account?',
+    dontHaveAccount: "Don't have an account?",
+    passwordsMustMatch: 'Passwords must match',
+    accountCreated: 'Account created successfully! Please login.',
     dashboard: 'Event Dashboard',
     createEvent: 'Create Event',
     analytics: 'Analytics',
@@ -37,14 +43,21 @@ export const translations = {
     number: 'Number',
     select: 'Select',
     file: 'File',
-    logout: 'Logout',
-    name: 'Name'
+    logout: 'Logout'
   },
   ar: {
     login: 'تسجيل دخول المدير',
+    signup: 'إنشاء حساب',
     email: 'البريد الإلكتروني',
     password: 'كلمة المرور',
+    confirmPassword: 'تأكيد كلمة المرور',
+    name: 'الاسم الكامل',
     signin: 'تسجيل الدخول',
+    signupButton: 'التسجيل',
+    alreadyHaveAccount: 'لديك حساب بالفعل؟',
+    dontHaveAccount: 'ليس لديك حساب؟',
+    passwordsMustMatch: 'يجب أن تتطابق كلمات المرور',
+    accountCreated: 'تم إنشاء الحساب بنجاح! يرجى تسجيل الدخول.',
     dashboard: 'لوحة الفعاليات',
     createEvent: 'إنشاء فعالية',
     analytics: 'التحليلات',
@@ -76,7 +89,6 @@ export const translations = {
     number: 'رقم',
     select: 'اختيار',
     file: 'ملف',
-    logout: 'تسجيل خروج',
-    name: 'الاسم'
+    logout: 'تسجيل خروج'
   }
 };

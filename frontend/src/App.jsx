@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { LanguageProvider } from './context/LanguageContext';
 import Login from './components/auth/Login';
+import Signup from './components/auth/Signup';
 import Dashboard from './components/dashboard/Dashboard';
-// Import other components as needed
+import CreateEvent from './components/events/CreateEvent';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -27,9 +28,21 @@ function App() {
             }
           />
           <Route
+            path="/signup"
+            element={
+              user ? <Navigate to="/dashboard" /> : <Signup />
+            }
+          />
+          <Route
             path="/dashboard"
             element={
               user ? <Dashboard onLogout={handleLogout} /> : <Navigate to="/login" />
+            }
+          />
+          <Route
+            path="/create-event"
+            element={
+              user ? <CreateEvent /> : <Navigate to="/login" />
             }
           />
           <Route path="/" element={<Navigate to="/login" />} />

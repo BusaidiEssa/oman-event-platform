@@ -10,9 +10,13 @@ import { useLanguage } from '../../context/LanguageContext';
 import { useTranslation } from '../../hooks/useTranslation';
 import api from '../../api/axios';
 
-const Login = ({ onLogin }) => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+const Signup = () => {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    password: '',
+    confirmPassword: ''
+  });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   
@@ -20,17 +24,38 @@ const Login = ({ onLogin }) => {
   const t = useTranslation();
   const navigate = useNavigate();
 
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+
+    // Validate passwords match
+    if (formData.password !== formData.confirmPassword) {
+      setError(t.passwordsMustMatch);
+      return;
+    }
+
     setLoading(true);
 
     try {
-      const response = await api.post('/auth/login', { email, password });
-      onLogin(response.data.manager);
-      navigate('/dashboard');
+      await api.post('/auth/register', {
+        name: formData.name,
+        email: formData.email,
+        password: formData.password
+      });
+      
+      // Redirect to login after successful signup
+      navigate('/login', { 
+        state: { message: t.accountCreated } 
+      });
     } catch (err) {
-      setError(err.response?.data?.message || 'Login failed');
+      setError(err.response?.data?.message || 'Signup failed');
     } finally {
       setLoading(false);
     }
@@ -41,7 +66,7 @@ const Login = ({ onLogin }) => {
       <Card className="w-full max-w-md">
         <CardHeader>
           <div className="flex justify-between items-center">
-            <CardTitle className={isRTL ? 'font-arabic' : ''}>{t.login}</CardTitle>
+            <CardTitle className={isRTL ? 'font-arabic' : ''}>{t.signup}</CardTitle>
             <Button variant="ghost" size="sm" onClick={toggleLanguage}>
               <Globe className="w-4 h-4 me-2" />
               {language === 'en' ? 'العربية' : 'English'}
@@ -51,24 +76,54 @@ const Login = ({ onLogin }) => {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
+              <Label className={isRTL ? 'font-arabic' : ''}>{t.name}</Label>
+              <Input
+                type="text"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                placeholder="John Doe"
+                className="mt-1"
+                required
+              />
+            </div>
+
+            <div>
               <Label className={isRTL ? 'font-arabic' : ''}>{t.email}</Label>
               <Input
                 type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
                 placeholder="admin@sme.om"
                 className="mt-1"
                 required
               />
             </div>
+
             <div>
               <Label className={isRTL ? 'font-arabic' : ''}>{t.password}</Label>
               <Input
                 type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
                 className="mt-1"
                 required
+                minLength={8}
+              />
+            </div>
+
+            <div>
+              <Label className={isRTL ? 'font-arabic' : ''}>{t.confirmPassword}</Label>
+              <Input
+                type="password"
+                name="confirmPassword"
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                className="mt-1"
+                required
+                minLength={8}
               />
             </div>
             
@@ -79,13 +134,13 @@ const Login = ({ onLogin }) => {
             )}
 
             <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? 'Loading...' : t.signin}
+              {loading ? 'Loading...' : t.signupButton}
             </Button>
 
             <div className="text-center text-sm text-gray-600">
-              {t.dontHaveAccount}{' '}
-              <Link to="/signup" className="text-blue-600 hover:underline">
-                {t.signup}
+              {t.alreadyHaveAccount}{' '}
+              <Link to="/login" className="text-blue-600 hover:underline">
+                {t.signin}
               </Link>
             </div>
           </form>
@@ -95,4 +150,4 @@ const Login = ({ onLogin }) => {
   );
 };
 
-export default Login;
+export default Signup;
