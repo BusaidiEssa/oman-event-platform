@@ -6,9 +6,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Globe } from 'lucide-react';
-import { useLanguage } from '../../context/LanguageContext';
-import { useTranslation } from '../../hooks/useTranslation';
-import api from '../../api/axios';
+import { useLanguage } from '../context/LanguageContext';
+import { useTranslation } from '../hooks/useTranslation';
+import api from '../api/axios';
 
 const Signup = () => {
   const [formData, setFormData] = useState({

@@ -6,9 +6,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Globe } from 'lucide-react';
-import { useLanguage } from '../../context/LanguageContext';
-import { useTranslation } from '../../hooks/useTranslation';
-import api from '../../api/axios';
+import { useLanguage } from '../context/LanguageContext';
+import { useTranslation } from '../hooks/useTranslation';
+import api from '../api/axios';
 
 const Login = ({ onLogin }) => {
   const [email, setEmail] = useState('');
@@ -28,7 +28,7 @@ const Login = ({ onLogin }) => {
     try {
       const response = await api.post('/auth/login', { email, password });
       onLogin(response.data.manager);
-      navigate('/dashboard');
+      navigate('/homepage');
     } catch (err) {
       setError(err.response?.data?.message || 'Login failed');
     } finally {

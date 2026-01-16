@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { LanguageProvider } from './context/LanguageContext';
-import Login from './components/auth/Login';
-import Signup from './components/auth/Signup';
-import Dashboard from './components/dashboard/Dashboard';
-import CreateEvent from './components/events/CreateEvent';
+import Login from './pages/Login';
+import Signup from './pages/Signup';
+import Homepage from './pages/Homepage';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -19,37 +18,17 @@ function App() {
 
   return (
     <LanguageProvider>
-      <BrowserRouter>
-        <Routes>
-          <Route
-            path="/login"
-            element={
-              user ? <Navigate to="/dashboard" /> : <Login onLogin={handleLogin} />
-            }
-          />
-          <Route
-            path="/signup"
-            element={
-              user ? <Navigate to="/dashboard" /> : <Signup />
-            }
-          />
-          <Route
-            path="/dashboard"
-            element={
-              user ? <Dashboard onLogout={handleLogout} /> : <Navigate to="/login" />
-            }
-          />
-          <Route
-            path="/create-event"
-            element={
-              user ? <CreateEvent /> : <Navigate to="/login" />
-            }
-          />
-          <Route path="/" element={<Navigate to="/login" />} />
-        </Routes>
-      </BrowserRouter>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/login" element={<Login onLogin={handleLogin} />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/homepage" element={<Homepage onLogout={handleLogout} />} />  {/* ← Use Homepage not HomePage */}
+        <Route path="/" element={<Login onLogin={handleLogin} />} />
+      </Routes>
+    </BrowserRouter>
     </LanguageProvider>
   );
 }
+
 
 export default App;
