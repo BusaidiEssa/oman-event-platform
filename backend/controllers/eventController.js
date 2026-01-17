@@ -4,9 +4,19 @@ export const createEvent = async (req, res) => {
   try {
     const { title, date, location, description } = req.body;
     
-    const slug = title.toLowerCase()
+    // Generate slug from title
+    const baseSlug = title.toLowerCase()
       .replace(/[^a-z0-9\s-]/g, '')
-      .replace(/\s+/g, '-');
+      .replace(/\s+/g, '-')
+      .substring(0, 50); // Limit length
+
+    // Ensure unique slug
+    let slug = baseSlug;
+    let counter = 1;
+    while (await Event.findOne({ slug })) {
+      slug = `${baseSlug}-${counter}`;
+      counter++;
+    }
 
     const event = new Event({
       title,
@@ -37,16 +47,43 @@ export const getEvents = async (req, res) => {
 
 export const getEventById = async (req, res) => {
   try {
-    const event = await Event.findOne({ 
-      _id: req.params.id, 
+    const identifier = req.params.id || req.params.slug;
+    
+    // Try to find by ID first, then by slug
+    let event = await Event.findOne({ 
+      _id: identifier, 
       managerId: req.managerId 
     });
+    
+    if (!event) {
+      // Try finding by slug
+      event = await Event.findOne({ 
+        slug: identifier, 
+        managerId: req.managerId 
+      });
+    }
     
     if (!event) {
       return res.status(404).json({ message: 'Event not found' });
     }
     res.json(event);
   } catch (error) {
+    // If error is due to invalid ObjectId, try slug
+    if (error.name === 'CastError') {
+      try {
+        const event = await Event.findOne({ 
+          slug: req.params.id || req.params.slug, 
+          managerId: req.managerId 
+        });
+        
+        if (!event) {
+          return res.status(404).json({ message: 'Event not found' });
+        }
+        return res.json(event);
+      } catch (slugError) {
+        return res.status(500).json({ message: slugError.message });
+      }
+    }
     res.status(500).json({ message: error.message });
   }
 };
@@ -76,7 +113,23 @@ export const updateEvent = async (req, res) => {
       return res.status(404).json({ message: 'Event not found' });
     }
 
-    if (title) event.title = title;
+    // Update slug if title changed
+    if (title && title !== event.title) {
+      const baseSlug = title.toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .substring(0, 50);
+
+      let slug = baseSlug;
+      let counter = 1;
+      while (await Event.findOne({ slug, _id: { $ne: event._id } })) {
+        slug = `${baseSlug}-${counter}`;
+        counter++;
+      }
+      event.slug = slug;
+      event.title = title;
+    }
+
     if (date) event.date = date;
     if (location !== undefined) event.location = location;
     if (description !== undefined) event.description = description;

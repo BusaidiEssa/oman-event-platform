@@ -14,7 +14,7 @@ import EventAnalytics from './EventAnalytics';
 import api from '../api/axios';
 
 const EventManagement = () => {
-  const { eventId } = useParams();
+  const { eventSlug } = useParams(); // Changed from eventId to eventSlug
   const [event, setEvent] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -26,11 +26,12 @@ const EventManagement = () => {
 
   useEffect(() => {
     fetchEvent();
-  }, [eventId]);
+  }, [eventSlug]);
 
   const fetchEvent = async () => {
     try {
-      const response = await api.get(`/events/${eventId}`);
+      // Fetch event by slug
+      const response = await api.get(`/events/slug/${eventSlug}`);
       setEvent(response.data);
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to load event');
@@ -111,15 +112,15 @@ const EventManagement = () => {
           </TabsContent>
 
           <TabsContent value="registrations">
-            <RegistrationsList eventId={eventId} event={event} />
+            <RegistrationsList eventId={event._id} event={event} />
           </TabsContent>
 
           <TabsContent value="checkin">
-            <QRScanner eventId={eventId} />
+            <QRScanner eventId={event._id} />
           </TabsContent>
 
           <TabsContent value="analytics">
-            <EventAnalytics eventId={eventId} />
+            <EventAnalytics eventId={event._id} />
           </TabsContent>
         </Tabs>
       </div>

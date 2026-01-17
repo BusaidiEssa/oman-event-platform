@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { CalendarPlus, Calendar, MapPin, LogOut, Globe, Trash2 } from 'lucide-react';
+import { CalendarPlus, Calendar, MapPin, LogOut, Globe, Trash2, Copy, Check } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { useTranslation } from '../hooks/useTranslation';
 import api from '../api/axios';
@@ -12,6 +12,7 @@ const EventDashboard = ({ onLogout }) => {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [copiedSlug, setCopiedSlug] = useState(null);
   
   const { toggleLanguage, language, isRTL, dir } = useLanguage();
   const t = useTranslation();
@@ -33,7 +34,7 @@ const EventDashboard = ({ onLogout }) => {
   };
 
   const handleDeleteEvent = async (e, eventId) => {
-    e.stopPropagation(); // Prevent card click
+    e.stopPropagation();
     
     if (!window.confirm(t.confirmDelete)) {
       return;
@@ -47,8 +48,27 @@ const EventDashboard = ({ onLogout }) => {
     }
   };
 
-  const handleCardClick = (eventId) => {
-    navigate(`/event/${eventId}/manage`);
+  const handleCopyLink = async (e, slug) => {
+    e.stopPropagation();
+    
+    const registrationUrl = `${window.location.origin}/register/${slug}`;
+    
+    try {
+      await navigator.clipboard.writeText(registrationUrl);
+      setCopiedSlug(slug);
+      
+      // Reset after 2 seconds
+      setTimeout(() => {
+        setCopiedSlug(null);
+      }, 2000);
+    } catch (err) {
+      console.error('Failed to copy:', err);
+      alert(isRTL ? 'فشل النسخ' : 'Failed to copy');
+    }
+  };
+
+  const handleCardClick = (slug) => {
+    navigate(`/event/${slug}/manage`);
   };
 
   const formatDate = (dateString) => {
@@ -122,7 +142,7 @@ const EventDashboard = ({ onLogout }) => {
                 <Card 
                   key={event._id} 
                   className="hover:shadow-lg transition-all hover:border-primary cursor-pointer"
-                  onClick={() => handleCardClick(event._id)}
+                  onClick={() => handleCardClick(event.slug)}
                 >
                   <CardHeader>
                     <div className="flex justify-between items-start">
@@ -162,15 +182,22 @@ const EventDashboard = ({ onLogout }) => {
                       </div>
 
                       <Button
-                        variant="secondary"
+                        variant={copiedSlug === event.slug ? "default" : "secondary"}
                         size="sm"
                         className="w-full"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          window.open(`/register/${event.slug}`, '_blank');
-                        }}
+                        onClick={(e) => handleCopyLink(e, event.slug)}
                       >
-                        {t.viewRegistrationPage}
+                        {copiedSlug === event.slug ? (
+                          <>
+                            <Check className="w-4 h-4 me-2" />
+                            {isRTL ? 'تم النسخ!' : 'Copied!'}
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="w-4 h-4 me-2" />
+                            {isRTL ? 'نسخ رابط التسجيل' : 'Copy Registration Link'}
+                          </>
+                        )}
                       </Button>
                     </div>
                   </CardContent>
