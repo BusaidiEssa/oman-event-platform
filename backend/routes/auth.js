@@ -1,10 +1,10 @@
 import express from 'express';
-import { register, login, logout, getProfile } from '../controllers/authController.js';
+import { signup, login, logout, getProfile } from '../controllers/authController.js';
 import { authenticateToken } from '../middleware/auth.js';
 
 const router = express.Router();
 
-router.post('/register', register);
+router.post('/signup', signup);
 router.post('/login', login);
 router.post('/logout', logout);
 router.get('/profile', authenticateToken, getProfile);

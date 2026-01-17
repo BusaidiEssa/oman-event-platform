@@ -13,8 +13,18 @@ const fieldSchema = new mongoose.Schema({
 });
 //groupschema that uses the field schema
 const groupSchema = new mongoose.Schema({
-  name: String,
-  capacity: Number,
+  name: {
+    type: String,
+    required: true
+  },
+  capacity: {
+    type: Number,
+    required: true
+  },
+  isOpen: {
+    type: Boolean,
+    default: true // Registration form is open by default
+  },
   fields: [fieldSchema]
 });
 //event schema that uses the group schema

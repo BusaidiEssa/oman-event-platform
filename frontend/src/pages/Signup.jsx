@@ -47,7 +47,7 @@ const Signup = () => {
 
     try {
       //api call to register new manager
-      await api.post('/auth/register', {
+      await api.post('/auth/signup', {
         name: formData.name,
         email: formData.email,
         password: formData.password

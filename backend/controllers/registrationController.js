@@ -17,6 +17,13 @@ export const register = async (req, res) => {
       return res.status(404).json({ message: 'Group not found' });
     }
 
+    // Check if registration form is open
+    if (!group.isOpen) {
+      return res.status(403).json({ 
+        message: 'Registration for this category is currently closed' 
+      });
+    }
+
     // Atomic capacity check
     const currentCount = await Registration.countDocuments({
       eventId: event._id,
@@ -27,11 +34,21 @@ export const register = async (req, res) => {
       return res.status(400).json({ message: 'Capacity reached' });
     }
 
+    // Extract email from form data (case-insensitive)
+    const email = formData.email || formData.Email || formData.EMAIL;
+    
+    if (!email) {
+      return res.status(400).json({ 
+        message: 'Email is required for registration' 
+      });
+    }
+
     // Generate unique QR code
+    const registrationId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     const qrData = {
-      eventId: event._id,
+      eventId: event._id.toString(),
       groupName,
-      registrationId: Date.now().toString(),
+      registrationId,
       timestamp: new Date().toISOString()
     };
 
@@ -41,28 +58,34 @@ export const register = async (req, res) => {
       eventId: event._id,
       groupName,
       formData,
-      qrCode: qrData.registrationId,
-      email: formData.email || formData.Email
+      qrCode: registrationId,
+      email
     });
 
     await registration.save();
 
     // Send email with QR code
-    if (registration.email) {
+    try {
       await sendQREmail(
-        registration.email,
+        email,
         qrCode,
         event.title,
         language || 'en'
       );
+      console.log(`:D \Registration email sent successfully to ${email}`);
+    } catch (emailError) {
+      console.error(`D; Failed to send email to ${email}:`, emailError.message);
+      // Don't fail the registration if email fails, just log it
     }
 
     res.status(201).json({
       message: 'Registration successful',
       qrCode,
-      registrationId: registration._id
+      registrationId: registration._id,
+      emailSent: true
     });
   } catch (error) {
+    console.error('Registration error:', error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -84,6 +107,63 @@ export const getRegistrations = async (req, res) => {
       .sort({ createdAt: -1 });
     
     res.json(registrations);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const updateRegistration = async (req, res) => {
+  try {
+    const { registrationId } = req.params;
+    const updates = req.body;
+
+    // Verify event ownership
+    const registration = await Registration.findById(registrationId);
+    if (!registration) {
+      return res.status(404).json({ message: 'Registration not found' });
+    }
+
+    const event = await Event.findOne({
+      _id: registration.eventId,
+      managerId: req.managerId
+    });
+
+    if (!event) {
+      return res.status(403).json({ message: 'Unauthorized' });
+    }
+
+    // Update allowed fields
+    if (updates.formData) registration.formData = updates.formData;
+    if (updates.email) registration.email = updates.email;
+
+    await registration.save();
+    res.json(registration);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const deleteRegistration = async (req, res) => {
+  try {
+    const { registrationId } = req.params;
+
+    const registration = await Registration.findById(registrationId);
+    if (!registration) {
+      return res.status(404).json({ message: 'Registration not found' });
+    }
+
+    // Verify event ownership
+    const event = await Event.findOne({
+      _id: registration.eventId,
+      managerId: req.managerId
+    });
+
+    if (!event) {
+      return res.status(403).json({ message: 'Unauthorized' });
+    }
+
+    await Registration.findByIdAndDelete(registrationId);
+    res.json({ message: 'Registration deleted successfully' });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -138,6 +218,7 @@ export const getAnalytics = async (req, res) => {
       return {
         groupName: group.name,
         capacity: group.capacity,
+        isOpen: group.isOpen,
         registrations: groupRegs.length,
         checkedIn: groupRegs.filter(r => r.checkedIn).length,
         available: group.capacity - groupRegs.length

@@ -5,10 +5,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Globe, Plus, Trash2, ArrowLeft } from 'lucide-react';
+import { Globe, ArrowLeft } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { useTranslation } from '../hooks/useTranslation';
-import FormBuilder from '../components/FormBuilder';
 import api from '../api/axios';
 
 const CreateEvent = () => {
@@ -18,7 +17,6 @@ const CreateEvent = () => {
     location: '',
     description: ''
   });
-  const [groups, setGroups] = useState([]);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   
@@ -33,67 +31,21 @@ const CreateEvent = () => {
     });
   };
 
-  const addGroup = () => {
-    setGroups([
-      ...groups,
-      {
-        id: Date.now(),
-        name: '',
-        capacity: 50,
-        fields: []
-      }
-    ]);
-  };
-
-  const updateGroup = (groupId, updates) => {
-    setGroups(groups.map(g => 
-      g.id === groupId ? { ...g, ...updates } : g
-    ));
-  };
-
-  const deleteGroup = (groupId) => {
-    setGroups(groups.filter(g => g.id !== groupId));
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
 
-    // Validation
     if (!formData.title || !formData.date) {
       setError(t.fillAllRequired);
       return;
     }
 
-    if (groups.length === 0) {
-      setError(t.addAtLeastOneGroup);
-      return;
-    }
-
-    // Validate each group
-    for (const group of groups) {
-      if (!group.name) {
-        setError(t.nameAllGroups);
-        return;
-      }
-      if (group.fields.length === 0) {
-        setError(`${t.addFieldsToGroup} "${group.name}"`);
-        return;
-      }
-    }
-
     setLoading(true);
 
     try {
-      // Remove temporary IDs before sending
-      const cleanedGroups = groups.map(({ id, ...group }) => group);
-      
-      await api.post('/events', {
-        ...formData,
-        groups: cleanedGroups
-      });
-      
-      navigate('/dashboard');
+      const response = await api.post('/events', formData);
+      // Navigate to event management page to add stakeholder groups
+      navigate(`/event/${response.data._id}/manage`);
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to create event');
     } finally {
@@ -103,8 +55,7 @@ const CreateEvent = () => {
 
   return (
     <div dir={dir} className="min-h-screen bg-gradient-to-br from-emerald-50 to-teal-100 p-6">
-      <div className="max-w-4xl mx-auto">
-        {/* Header */}
+      <div className="max-w-2xl mx-auto">
         <div className="flex justify-between items-center mb-6">
           <Button variant="ghost" onClick={() => navigate('/dashboard')}>
             <ArrowLeft className={`w-4 h-4 ${isRTL ? 'rotate-180' : ''}`} />
@@ -119,13 +70,15 @@ const CreateEvent = () => {
         <Card>
           <CardHeader>
             <CardTitle>{t.createEvent}</CardTitle>
+            <p className="text-sm text-gray-600">
+              {isRTL 
+                ? 'ستتمكن من إضافة نماذج أصحاب المصلحة بعد إنشاء الفعالية'
+                : 'You can add stakeholder forms after creating the event'}
+            </p>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Event Details */}
               <div className="space-y-4">
-                <h3 className="text-lg font-semibold">{t.eventDetails}</h3>
-                
                 <div>
                   <Label htmlFor="title">{t.eventTitle} *</Label>
                   <Input
@@ -174,81 +127,17 @@ const CreateEvent = () => {
                 </div>
               </div>
 
-              {/* Stakeholder Groups */}
-              <div className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <h3 className="text-lg font-semibold">{t.stakeholderGroups}</h3>
-                  <Button type="button" onClick={addGroup} variant="outline" size="sm">
-                    <Plus className="w-4 h-4 me-2" />
-                    {t.addGroup}
-                  </Button>
-                </div>
-
-                {groups.length === 0 && (
-                  <Alert>
-                    <AlertDescription>{t.addStakeholderPrompt}</AlertDescription>
-                  </Alert>
-                )}
-
-                {groups.map((group, index) => (
-                  <Card key={group.id} className="border-2">
-                    <CardHeader>
-                      <div className="flex justify-between items-start">
-                        <div className="flex-1 space-y-3">
-                          <Input
-                            placeholder={t.placeholderGroupName}
-                            value={group.name}
-                            onChange={(e) => updateGroup(group.id, { name: e.target.value })}
-                            className="text-lg font-semibold"
-                          />
-                          <div className="flex items-center gap-2">
-                            <Label className="whitespace-nowrap">{t.capacity}:</Label>
-                            <Input
-                              type="number"
-                              min="1"
-                              value={group.capacity}
-                              onChange={(e) => updateGroup(group.id, { capacity: parseInt(e.target.value) || 0 })}
-                              className="w-32"
-                            />
-                          </div>
-                        </div>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => deleteGroup(group.id)}
-                        >
-                          <Trash2 className="w-4 h-4 text-red-500" />
-                        </Button>
-                      </div>
-                    </CardHeader>
-                    <CardContent>
-                      <FormBuilder
-                        fields={group.fields}
-                        onChange={(fields) => updateGroup(group.id, { fields })}
-                      />
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-
-              {/* Error Display */}
               {error && (
                 <Alert variant="destructive">
                   <AlertDescription>{error}</AlertDescription>
                 </Alert>
               )}
 
-              {/* Submit Button */}
               <div className="flex gap-3">
                 <Button type="submit" disabled={loading} className="flex-1">
-                  {loading ? t.creating : t.save}
+                  {loading ? t.creating : t.createEvent}
                 </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => navigate('/dashboard')}
-                >
+                <Button type="button" variant="outline" onClick={() => navigate('/dashboard')}>
                   {t.cancel}
                 </Button>
               </div>

@@ -3,28 +3,27 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { LanguageProvider } from './context/LanguageContext';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
-import EventDashboard from './pages/Dashboard';
+import EventDashboard from './pages/EventDashboard';
 import CreateEvent from './pages/CreateEvent';
+import EventManagement from './pages/EventManagement';
 import PublicRegistration from './pages/PublicRegistration';
-import EventAnalytics from './pages/EventAnalytics';
-import QRScanner from './pages/QRScanner';
-import api from './api/axios';
 
 function App() {
-  const [user, setUser] = useState(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(
+    () => !!localStorage.getItem('token')
+  );
 
-  const handleLogin = (userData) => {
-    setUser(userData);
+  const handleLogin = () => {
+    setIsAuthenticated(true);
   };
 
-  const handleLogout = async () => {
-    try {
-      await api.post('/auth/logout');
-    } catch (error) {
-      console.error('Logout error:', error);
-    } finally {
-      setUser(null);
-    }
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    setIsAuthenticated(false);
+  };
+
+  const ProtectedRoute = ({ children }) => {
+    return isAuthenticated ? children : <Navigate to="/login" />;
   };
 
   return (
@@ -32,31 +31,48 @@ function App() {
       <BrowserRouter>
         <Routes>
           {/* Public Routes */}
-          <Route path="/login" element={<Login onLogin={handleLogin} />} />
-          <Route path="/signup" element={<Signup />} />
+          <Route 
+            path="/login" 
+            element={
+              isAuthenticated ? <Navigate to="/dashboard" /> : <Login onLogin={handleLogin} />
+            } 
+          />
+          <Route 
+            path="/signup" 
+            element={
+              isAuthenticated ? <Navigate to="/dashboard" /> : <Signup />
+            } 
+          />
           <Route path="/register/:eventSlug" element={<PublicRegistration />} />
-          
-          {/* Protected Routes - Manager Portal */}
-          <Route 
-            path="/dashboard" 
-            element={user ? <EventDashboard onLogout={handleLogout} /> : <Navigate to="/login" />} 
+
+          {/* Protected Routes */}
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <EventDashboard onLogout={handleLogout} />
+              </ProtectedRoute>
+            }
           />
-          <Route 
-            path="/create-event" 
-            element={user ? <CreateEvent /> : <Navigate to="/login" />} 
+          <Route
+            path="/create-event"
+            element={
+              <ProtectedRoute>
+                <CreateEvent />
+              </ProtectedRoute>
+            }
           />
-          <Route 
-            path="/event/:eventId/analytics" 
-            element={user ? <EventAnalytics /> : <Navigate to="/login" />} 
+          <Route
+            path="/event/:eventId/manage"
+            element={
+              <ProtectedRoute>
+                <EventManagement />
+              </ProtectedRoute>
+            }
           />
-          <Route 
-            path="/event/:eventId/checkin" 
-            element={user ? <QRScanner /> : <Navigate to="/login" />} 
-          />
-          
-          {/* Default Routes */}
+
+          {/* Default Route */}
           <Route path="/" element={<Navigate to="/login" />} />
-          <Route path="*" element={<Navigate to="/login" />} />
         </Routes>
       </BrowserRouter>
     </LanguageProvider>

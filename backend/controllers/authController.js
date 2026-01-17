@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 import Manager from '../models/Manager.js';
 
 //handles new manager creation (signup)
-export const register = async (req, res) => {
+export const signup = async (req, res) => {
   try {
     const { email, password, name } = req.body;
     //gets input from manager and checks if the manager with the same email already exists
@@ -28,7 +28,7 @@ export const register = async (req, res) => {
     //save to database
     await manager.save();
     //respond in concsole with success message
-    res.status(201).json({ message: 'Manager registered successfully' });
+    res.status(201).json({ message: 'Manager signuped successfully' });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
