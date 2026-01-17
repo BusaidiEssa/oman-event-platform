@@ -19,7 +19,7 @@ export const register = async (req, res) => {
       timeCost: 3,      
       parallelism: 1
     });
-    //create a new manager document
+    //create a new manager instance
     const manager = new Manager({
       email,
       password: hashedPassword,

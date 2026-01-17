@@ -28,7 +28,7 @@ const Login = ({ onLogin }) => {
     try {
       const response = await api.post('/auth/login', { email, password });
       onLogin(response.data.manager);
-      navigate('/homepage');
+      navigate('/dashboard');
     } catch (err) {
       setError(err.response?.data?.message || 'Login failed');
     } finally {

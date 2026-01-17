@@ -20,17 +20,19 @@ const Signup = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   
+  //language and translation hooks
   const { toggleLanguage, language, isRTL, dir } = useLanguage();
   const t = useTranslation();
   const navigate = useNavigate();
 
+  //update form data when user types
   const handleChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
     });
   };
-
+// handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -44,6 +46,7 @@ const Signup = () => {
     setLoading(true);
 
     try {
+      //api call to register new manager
       await api.post('/auth/register', {
         name: formData.name,
         email: formData.email,
@@ -62,11 +65,13 @@ const Signup = () => {
   };
 
   return (
+    // div with dynamic direction implemented (LTR ->RTL)
     <div dir={dir} className="min-h-screen bg-gradient-to-br from-emerald-50 to-teal-100 flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader>
           <div className="flex justify-between items-center">
             <CardTitle className={isRTL ? 'font-arabic' : ''}>{t.signup}</CardTitle>
+            {/* Languuage toggle button*/}  
             <Button variant="ghost" size="sm" onClick={toggleLanguage}>
               <Globe className="w-4 h-4 me-2" />
               {language === 'en' ? 'العربية' : 'English'}
