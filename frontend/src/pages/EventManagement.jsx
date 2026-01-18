@@ -9,13 +9,14 @@ import { useTranslation } from '../hooks/useTranslation';
 import EventFormEditor from '../components/EventFormEditor';
 import StakeholderFormEditor from '../components/StakeholderFormEditor';
 import RegistrationsList from '../components/RegistrationsList';
-
 import EventAnalytics from './EventAnalytics';
+import MassEmailTab from '../components/MassEmailTab';
 import api from '../api/axios';
 
 const EventManagement = () => {
-  const { eventSlug } = useParams(); // Changed from eventId to eventSlug
+  const { eventSlug } = useParams();
   const [event, setEvent] = useState(null);
+  const [registrations, setRegistrations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [activeTab, setActiveTab] = useState('details');
@@ -28,15 +29,29 @@ const EventManagement = () => {
     fetchEvent();
   }, [eventSlug]);
 
+  useEffect(() => {
+    if (event) {
+      fetchRegistrations();
+    }
+  }, [event]);
+
   const fetchEvent = async () => {
     try {
-      // Fetch event by slug - the backend will handle slug vs ID automatically
       const response = await api.get(`/events/${eventSlug}`);
       setEvent(response.data);
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to load event');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchRegistrations = async () => {
+    try {
+      const response = await api.get(`/registrations/${event._id}`);
+      setRegistrations(response.data);
+    } catch (err) {
+      console.error('Failed to load registrations:', err);
     }
   };
 
@@ -94,28 +109,35 @@ const EventManagement = () => {
 
       {/* Tabbed Content */}
       <div className="max-w-7xl mx-auto px-6 py-8">
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-4 mb-8">
+        <Tabs value={activeTab} onValueChange={setActiveTab} dir={dir}>
+          <TabsList className="grid w-full grid-cols-5 mb-8">
             <TabsTrigger value="details">{t.eventDetails}</TabsTrigger>
             <TabsTrigger value="stakeholders">{t.stakeholderFormEditor}</TabsTrigger>
             <TabsTrigger value="registrations">{t.registrationsandcheckin}</TabsTrigger>
             <TabsTrigger value="analytics">{t.analytics}</TabsTrigger>
+            <TabsTrigger value="email">
+              {language === 'ar' ? 'البريد الجماعي' : 'Mass Email'}
+            </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="details">
+          <TabsContent value="details" dir={dir}>
             <EventFormEditor event={event} onUpdate={handleEventUpdate} />
           </TabsContent>
 
-          <TabsContent value="stakeholders">
+          <TabsContent value="stakeholders" dir={dir}>
             <StakeholderFormEditor event={event} onUpdate={handleEventUpdate} />
           </TabsContent>
 
-          <TabsContent value="registrations">
+          <TabsContent value="registrations" dir={dir}>
             <RegistrationsList eventId={event._id} event={event} />
           </TabsContent>
 
-          <TabsContent value="analytics">
+          <TabsContent value="analytics" dir={dir}>
             <EventAnalytics eventId={event._id} />
+          </TabsContent>
+
+          <TabsContent value="email" dir={dir}>
+            <MassEmailTab eventId={event._id} registrations={registrations} />
           </TabsContent>
         </Tabs>
       </div>

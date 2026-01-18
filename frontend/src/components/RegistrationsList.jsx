@@ -36,16 +36,29 @@ const RegistrationsList = ({ eventId, event }) => {
     }
   };
 
-  const performCheckIn = async (code) => {
-    if (!code || !code.trim()) return;
+  const performCheckIn = async (qrCodeData) => {
+    // Handle both string and object formats
+    let qrCode = qrCodeData;
+    
+    if (typeof qrCodeData === 'object') {
+      // If it's an object, extract the registrationId
+      qrCode = qrCodeData.registrationId || qrCodeData.qrCode;
+    }
+
+    if (!qrCode || !qrCode.trim()) {
+      console.error('Invalid QR code data:', qrCodeData);
+      return;
+    }
 
     setCheckInLoading(true);
     setCheckInResult(null);
     setError('');
 
     try {
+      console.log('Checking in with QR code:', qrCode);
+      
       const response = await api.post('/registrations/checkin', {
-        qrCode: code.trim()
+        qrCode: qrCode.trim()
       });
 
       setCheckInResult({
@@ -60,11 +73,12 @@ const RegistrationsList = ({ eventId, event }) => {
           : r
       ));
 
-      // Auto-clear result
+      // Auto-clear result after 3 seconds
       setTimeout(() => {
         setCheckInResult(null);
       }, 3000);
     } catch (err) {
+      console.error('Check-in error:', err);
       const errorMessage = err.response?.data?.message || 'Check-in failed';
 
       if (err.response?.status === 400 && errorMessage.includes('Already checked in')) {
@@ -79,7 +93,10 @@ const RegistrationsList = ({ eventId, event }) => {
           message: isRTL ? 'رمز QR غير صالح' : 'Invalid QR code'
         });
       } else {
-        setError(errorMessage);
+        setCheckInResult({
+          success: false,
+          message: errorMessage
+        });
       }
 
       setTimeout(() => {
