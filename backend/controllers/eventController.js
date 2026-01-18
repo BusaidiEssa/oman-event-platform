@@ -34,7 +34,7 @@ export const createEvent = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-
+//retreive events
 export const getEvents = async (req, res) => {
   try {
     const events = await Event.find({ managerId: req.managerId })
@@ -44,7 +44,7 @@ export const getEvents = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-
+//retrieve event by id or slug if id fails
 export const getEventById = async (req, res) => {
   try {
     const identifier = req.params.id || req.params.slug;
@@ -158,7 +158,7 @@ export const deleteEvent = async (req, res) => {
   }
 };
 
-// Stakeholder group management with auto-initialization
+// Stakeholder group management with auto-initialization of name and email
 export const addStakeholderGroup = async (req, res) => {
   try {
     const { name, capacity, fields } = req.body;
@@ -228,7 +228,7 @@ export const addStakeholderGroup = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-
+//handle update to form
 export const updateStakeholderGroup = async (req, res) => {
   try {
     const { groupId } = req.params;
@@ -276,7 +276,7 @@ export const updateStakeholderGroup = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-
+//handle closing and opening the form registration link
 export const toggleStakeholderForm = async (req, res) => {
   try {
     const { groupId } = req.params;
@@ -307,7 +307,7 @@ export const toggleStakeholderForm = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-
+// handle deletion of stakeholderGroup
 export const deleteStakeholderGroup = async (req, res) => {
   try {
     const { groupId } = req.params;

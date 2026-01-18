@@ -3,7 +3,9 @@ import {
   register,
   getRegistrations,
   checkIn,
-  getAnalytics
+  getAnalytics,
+  deleteRegistration,
+  sendMassEmail
 } from '../controllers/registrationController.js';
 import { authenticateToken } from '../middleware/auth.js';
 
@@ -16,5 +18,7 @@ router.post('/register', register);
 router.get('/:eventId', authenticateToken, getRegistrations);
 router.post('/checkin', authenticateToken, checkIn);
 router.get('/:eventId/analytics', authenticateToken, getAnalytics);
+router.delete('/:registrationId',authenticateToken, deleteRegistration)
+router.post('/:eventId/mass-email', authenticateToken, sendMassEmail);
 
 export default router;
