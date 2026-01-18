@@ -26,13 +26,13 @@ const StakeholderFormEditor = ({ event, onUpdate }) => {
   const { isRTL } = useLanguage();
 
   const handleAddGroup = () => {
-    // ✅ Pre-fill with Name and Email fields
+    // Pre-fill with Name and Email fields
     setGroupData({ 
       name: '', 
       capacity: 50, 
       fields: [
-        { label: 'Full Name', type: 'text', required: true },
-        { label: 'Email', type: 'text', required: true }
+        { id: 1, label: 'Full Name', type: 'text', required: true },
+        { id: 2, label: 'Email', type: 'text', required: true }
       ]
     });
     setEditingGroup(null);
@@ -44,7 +44,10 @@ const StakeholderFormEditor = ({ event, onUpdate }) => {
     setGroupData({
       name: group.name,
       capacity: group.capacity,
-      fields: group.fields
+      fields: group.fields.map((f, idx) => ({
+        ...f,
+        id: f._id || idx
+      }))
     });
     setEditingGroup(group._id);
     setShowAddForm(true);
@@ -65,7 +68,7 @@ const StakeholderFormEditor = ({ event, onUpdate }) => {
       return;
     }
 
-    // Check for required Name and Email fields (should always be there)
+    // Check for required Name and Email fields
     const hasName = groupData.fields.some(f => 
       (f.label.toLowerCase().includes('name') || f.label.toLowerCase().includes('اسم')) && f.required
     );
@@ -81,13 +84,20 @@ const StakeholderFormEditor = ({ event, onUpdate }) => {
     setLoading(true);
 
     try {
+      // Remove id field before sending to backend
+      const fieldsToSend = groupData.fields.map(({ id, ...rest }) => rest);
+
       let response;
       if (editingGroup) {
-        // Update existing group
-        response = await api.put(`/events/${event._id}/groups/${editingGroup}`, groupData);
+        response = await api.put(`/events/${event._id}/groups/${editingGroup}`, {
+          ...groupData,
+          fields: fieldsToSend
+        });
       } else {
-        // Add new group (backend will auto-add Name/Email if missing)
-        response = await api.post(`/events/${event._id}/groups`, groupData);
+        response = await api.post(`/events/${event._id}/groups`, {
+          ...groupData,
+          fields: fieldsToSend
+        });
       }
       
       onUpdate(response.data);
@@ -164,13 +174,13 @@ const StakeholderFormEditor = ({ event, onUpdate }) => {
               <Info className="w-4 h-4 text-blue-600" />
               <AlertDescription className="text-blue-800">
                 {isRTL 
-                  ? 'يتم تضمين حقول الاسم والبريد الإلكتروني تلقائياً ومطلوبة دائماً'
-                  : 'Name and Email fields are automatically included and always required'}
+                  ? 'يتم تضمين حقول الاسم والبريد الإلكتروني تلقائياً ومطلوبة دائماً. يمكنك إضافة حقول إضافية حسب الحاجة.'
+                  : 'Name and Email fields are automatically included and always required. You can add additional fields as needed.'}
               </AlertDescription>
             </Alert>
 
+            {/* Form Builder - no preview */}
             <div>
-              <Label className="mb-2 block">{t.formFields}</Label>
               <FormBuilder
                 fields={groupData.fields}
                 onChange={(fields) => setGroupData({ ...groupData, fields })}
@@ -215,13 +225,17 @@ const StakeholderFormEditor = ({ event, onUpdate }) => {
                   </CardHeader>
                   <CardContent className="space-y-3">
                     <div className="text-sm text-gray-600">
-                      {group.fields.length} {t.formFields}
-                      <div className="mt-1 text-xs text-gray-500">
-                        {isRTL ? 'يتضمن: الاسم، البريد الإلكتروني' : 'Includes: Name, Email'}
+                      <p className="font-medium mb-2">
+                        {group.fields.length} {t.formFields}
+                      </p>
+                      <div className="space-y-1 text-xs text-gray-500">
+                        {group.fields.map((field, idx) => (
+                          <div key={idx}>• {field.label}</div>
+                        ))}
                       </div>
                     </div>
 
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 pt-3 border-t">
                       <Button
                         size="sm"
                         variant={group.isOpen ? "outline" : "default"}

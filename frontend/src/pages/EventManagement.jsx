@@ -9,7 +9,7 @@ import { useTranslation } from '../hooks/useTranslation';
 import EventFormEditor from '../components/EventFormEditor';
 import StakeholderFormEditor from '../components/StakeholderFormEditor';
 import RegistrationsList from '../components/RegistrationsList';
-import QRScanner from './QRScanner';
+
 import EventAnalytics from './EventAnalytics';
 import api from '../api/axios';
 
@@ -95,11 +95,10 @@ const EventManagement = () => {
       {/* Tabbed Content */}
       <div className="max-w-7xl mx-auto px-6 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-5 mb-8">
+          <TabsList className="grid w-full grid-cols-4 mb-8">
             <TabsTrigger value="details">{t.eventDetails}</TabsTrigger>
             <TabsTrigger value="stakeholders">{t.stakeholderFormEditor}</TabsTrigger>
-            <TabsTrigger value="registrations">{t.registrations}</TabsTrigger>
-            <TabsTrigger value="checkin">{t.checkIn}</TabsTrigger>
+            <TabsTrigger value="registrations">{t.registrationsandcheckin}</TabsTrigger>
             <TabsTrigger value="analytics">{t.analytics}</TabsTrigger>
           </TabsList>
 
@@ -113,10 +112,6 @@ const EventManagement = () => {
 
           <TabsContent value="registrations">
             <RegistrationsList eventId={event._id} event={event} />
-          </TabsContent>
-
-          <TabsContent value="checkin">
-            <QRScanner eventId={event._id} />
           </TabsContent>
 
           <TabsContent value="analytics">
