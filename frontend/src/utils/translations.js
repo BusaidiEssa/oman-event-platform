@@ -80,6 +80,7 @@ export const translations = {
     registerAnother: 'Register Another Person',
     
     // Analytics
+    registrationsandcheckin: 'Registrations & CheckIn',
     registrations: 'Registrations',
     checkedIn: 'Checked In',
     totalRegistrations: 'Total Registrations',
@@ -266,6 +267,7 @@ export const translations = {
     registerAnother: 'تسجيل شخص آخر',
     
     // Analytics
+    registrationsandcheckin:"التسجيلات وتسجيل الحضور",
     registrations: 'التسجيلات',
     checkedIn: 'حضور مسجل',
     totalRegistrations: 'إجمالي التسجيلات',
