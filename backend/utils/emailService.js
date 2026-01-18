@@ -1,37 +1,16 @@
-import nodemailer from 'nodemailer';
+import sgMail from '@sendgrid/mail';
 import dotenv from 'dotenv';
 
-dotenv.config()
+dotenv.config();
 
-// Initialize transporter
-// Initialize transporter
-const transporter = nodemailer.createTransport({
-  host: process.env.EMAIL_HOST,
-  port: parseInt(process.env.EMAIL_PORT),
-  secure: false,
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS
-  },
-  tls: {
-    rejectUnauthorized: false
-  }
-});
-
-// Verify transporter on startup
-transporter.verify((error, success) => {
-  if (error) {
-    console.error('D; Email transporter verification failed:', error);
-  } else {
-    console.log(':D Email server is ready to send messages');
-  }
-});
+// Configure SendGrid with your API key from .env
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 // English & Arabic email content translations
 export const sendQREmail = async (email, qrCode, eventTitle, language = 'en') => {
   // Extract base64 data from QR code data URL
   const qrBase64 = qrCode.replace(/^data:image\/png;base64,/, '');
-  
+
   const translations = {
     en: {
       subject: `Registration Confirmation - ${eventTitle}`,
@@ -39,8 +18,8 @@ export const sendQREmail = async (email, qrCode, eventTitle, language = 'en') =>
         <!DOCTYPE html>
         <html>
         <head>
-          <meta charset="UTF-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <meta charset="UTF-8" />
+          <meta name="viewport" content="width=device-width, initial-scale=1.0" />
           <style>
             body { 
               font-family: Arial, sans-serif; 
@@ -126,7 +105,6 @@ export const sendQREmail = async (email, qrCode, eventTitle, language = 'en') =>
               <p style="font-size: 16px; color: #4b5563;">
                 Thank you for registering! We're excited to have you join us.
               </p>
-              
               <div class="qr-container">
                 <p style="margin: 0 0 15px 0; font-weight: bold; color: #1f2937; font-size: 18px;">
                   Your Check-in QR Code
@@ -139,7 +117,6 @@ export const sendQREmail = async (email, qrCode, eventTitle, language = 'en') =>
                   You'll need to present this at the event entrance for check-in.
                 </p>
               </div>
-              
               <div class="info-box">
                 <p style="font-weight: bold; color: #0369a1; margin-bottom: 8px;">
                   📱 Quick Tip
@@ -149,11 +126,9 @@ export const sendQREmail = async (email, qrCode, eventTitle, language = 'en') =>
                   You can also print it out if you prefer!
                 </p>
               </div>
-              
               <p style="font-size: 16px; color: #4b5563;">
                 If you have any questions, please don't hesitate to contact the event organizers.
               </p>
-              
               <p style="font-size: 16px; color: #4b5563; margin-top: 30px;">
                 See you at the event! 🎊
               </p>
@@ -175,8 +150,8 @@ export const sendQREmail = async (email, qrCode, eventTitle, language = 'en') =>
         <!DOCTYPE html>
         <html dir="rtl" lang="ar">
         <head>
-          <meta charset="UTF-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <meta charset="UTF-8" />
+          <meta name="viewport" content="width=device-width, initial-scale=1.0" />
           <style>
             body { 
               font-family: 'Segoe UI', Tahoma, Arial, sans-serif; 
@@ -256,42 +231,38 @@ export const sendQREmail = async (email, qrCode, eventTitle, language = 'en') =>
         <body>
           <div class="email-container">
             <div class="header">
-              <h1>🎉 تم التسجيل بنجاح!</h1>
+              <h1>!🎉 تم التسجيل بنجاح</h1>
             </div>
             <div class="content">
               <h2 style="color: #1f2937; margin-top: 0;">مرحباً بك في ${eventTitle}</h2>
               <p style="font-size: 16px; color: #4b5563;">
                 شكراً لتسجيلك! نحن متحمسون لانضمامك إلينا.
               </p>
-              
               <div class="qr-container">
                 <p style="margin: 0 0 15px 0; font-weight: bold; color: #1f2937; font-size: 18px;">
-                  رمز QR الخاص بك
+                     الخاص بكQR هذا
                 </p>
                 <img src="cid:qrcode" alt="رمز QR" class="qr-code" />
                 <p style="color: #059669; font-weight: bold; margin: 20px 0 10px 0; font-size: 16px;">
-                  ✓ يرجى حفظ رمز QR هذا
+                    QR  يرجى حفظ رمز 
                 </p>
                 <p style="font-size: 14px; color: #6b7280; margin: 0;">
                   ستحتاج إلى تقديم هذا عند مدخل الفعالية لتسجيل الدخول.
                 </p>
               </div>
-              
               <div class="info-box">
                 <p style="font-weight: bold; color: #0369a1; margin-bottom: 8px;">
                   📱 نصيحة سريعة
                 </p>
                 <p style="color: #475569;">
-                  احفظ هذا البريد الإلكتروني أو التقط لقطة شاشة لرمز QR الخاص بك لسهولة الوصول إليه في الفعالية. 
+                  احفظ هذا البريد الإلكتروني أو التقط لقطة شاشة لرمز  الخاص بك لسهولة الوصول إليه في الفعالية. 
                   يمكنك أيضاً طباعته إذا كنت تفضل ذلك!
                 </p>
               </div>
-              
               <p style="font-size: 16px; color: #4b5563;">
                 إذا كان لديك أي أسئلة، يرجى عدم التردد في الاتصال بمنظمي الفعالية.
               </p>
-              
-              <p style="font-size: 16px; color: #4b5563; margin-top: 30px;">
+              <p style="font-size: 16px; color: #4b7280; margin-top: 30px;">
                 نراكم في الفعالية! 🎊
               </p>
             </div>
@@ -311,29 +282,29 @@ export const sendQREmail = async (email, qrCode, eventTitle, language = 'en') =>
   // Select content based on language
   const content = translations[language] || translations.en;
 
-  // Email configuration with embedded image using CID (Content-ID)
-  const mailOptions = {
-    from: `"SME Events Platform" <${process.env.EMAIL_USER}>`,
+  // Compose SendGrid email message
+  const msg = {
     to: email,
+    from: process.env.EMAIL_USER, // Your verified sender email
     subject: content.subject,
     html: content.body,
     attachments: [
       {
-        filename: 'qrcode.png',
         content: qrBase64,
-        encoding: 'base64',
-        cid: 'qrcode' // This CID is referenced in the HTML as src="cid:qrcode"
+        filename: 'qrcode.png',
+        type: 'image/png',
+        disposition: 'inline',
+        content_id: 'qrcode' // Matches the src="cid:qrcode" in HTML
       }
     ]
   };
 
   try {
-    const info = await transporter.sendMail(mailOptions);
+    await sgMail.send(msg);
     console.log(`:D Email sent successfully to ${email}`);
-    console.log('Message ID:', info.messageId);
-    return { success: true, messageId: info.messageId };
+    return { success: true };
   } catch (error) {
-    console.error(`D; Email sending error to ${email}:`, error);
+    console.error(`D; SendGrid email sending error to ${email}:`, error.response?.body || error);
     throw error;
   }
 };
