@@ -299,12 +299,7 @@ const FormBuilder = ({ fields, onChange }) => {
         })}
       </div>
 
-      {/* Info about locked fields */}
-      <div className="p-2 bg-blue-50 border border-blue-200 rounded text-xs text-blue-800">
-        {isRTL 
-          ? 'ملاحظة: حقول الاسم والبريد الإلكتروني مقفولة ولا يمكن حذفها أو تعديل نوعها'
-          : 'Note: Name and Email fields are locked and cannot be deleted or have their type changed'}
-      </div>
+      
     </div>
   );
 };
