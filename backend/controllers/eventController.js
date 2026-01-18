@@ -172,7 +172,7 @@ export const addStakeholderGroup = async (req, res) => {
       return res.status(404).json({ message: 'Event not found' });
     }
 
-    // ✅ AUTO-INITIALIZE with Name and Email fields
+    //  AUTO-INITIALIZE with Name and Email fields
     let initializedFields = fields || [];
     
     // Check if Name field exists

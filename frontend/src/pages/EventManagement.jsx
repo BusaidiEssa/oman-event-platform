@@ -30,8 +30,8 @@ const EventManagement = () => {
 
   const fetchEvent = async () => {
     try {
-      // Fetch event by slug
-      const response = await api.get(`/events/slug/${eventSlug}`);
+      // Fetch event by slug - the backend will handle slug vs ID automatically
+      const response = await api.get(`/events/${eventSlug}`);
       setEvent(response.data);
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to load event');

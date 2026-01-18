@@ -63,7 +63,7 @@ function App() {
             }
           />
           <Route
-            path="/event/:eventId/manage"
+            path="/event/:eventSlug/manage"
             element={
               <ProtectedRoute>
                 <EventManagement />

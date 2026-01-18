@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 dotenv.config()
 
 // Initialize transporter
+// Initialize transporter
 const transporter = nodemailer.createTransport({
   host: process.env.EMAIL_HOST,
   port: parseInt(process.env.EMAIL_PORT),
@@ -28,6 +29,9 @@ transporter.verify((error, success) => {
 
 // English & Arabic email content translations
 export const sendQREmail = async (email, qrCode, eventTitle, language = 'en') => {
+  // Extract base64 data from QR code data URL
+  const qrBase64 = qrCode.replace(/^data:image\/png;base64,/, '');
+  
   const translations = {
     en: {
       subject: `Registration Confirmation - ${eventTitle}`,
@@ -35,43 +39,130 @@ export const sendQREmail = async (email, qrCode, eventTitle, language = 'en') =>
         <!DOCTYPE html>
         <html>
         <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
           <style>
-            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-            .header { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
-            .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
-            .qr-container { background: white; padding: 20px; text-align: center; margin: 20px 0; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-            .qr-code { max-width: 300px; height: auto; }
-            .footer { text-align: center; margin-top: 20px; font-size: 12px; color: #666; }
-            .button { display: inline-block; padding: 12px 24px; background: #10b981; color: white; text-decoration: none; border-radius: 6px; margin: 10px 0; }
+            body { 
+              font-family: Arial, sans-serif; 
+              line-height: 1.6; 
+              color: #333; 
+              margin: 0;
+              padding: 0;
+              background-color: #f4f4f4;
+            }
+            .email-container {
+              max-width: 600px;
+              margin: 0 auto;
+              background-color: #ffffff;
+            }
+            .header { 
+              background: linear-gradient(135deg, #10b981 0%, #059669 100%); 
+              color: white; 
+              padding: 40px 30px; 
+              text-align: center;
+            }
+            .header h1 {
+              margin: 0;
+              font-size: 28px;
+              font-weight: bold;
+            }
+            .content { 
+              padding: 40px 30px;
+            }
+            .qr-container { 
+              background: #f9fafb; 
+              padding: 30px; 
+              text-align: center; 
+              margin: 30px 0; 
+              border-radius: 12px;
+              border: 2px dashed #d1d5db;
+            }
+            .qr-code { 
+              max-width: 280px;
+              width: 100%;
+              height: auto; 
+              display: block;
+              margin: 0 auto;
+            }
+            .info-box {
+              background: #e0f2fe; 
+              padding: 20px; 
+              border-left: 4px solid #0284c7; 
+              margin: 25px 0; 
+              border-radius: 6px;
+            }
+            .info-box p {
+              margin: 0;
+              line-height: 1.5;
+            }
+            .footer { 
+              text-align: center; 
+              padding: 30px;
+              background-color: #f9fafb;
+              color: #6b7280;
+              font-size: 14px;
+              border-top: 1px solid #e5e7eb;
+            }
+            @media only screen and (max-width: 600px) {
+              .header h1 {
+                font-size: 24px;
+              }
+              .content {
+                padding: 30px 20px;
+              }
+              .qr-code {
+                max-width: 220px;
+              }
+            }
           </style>
         </head>
         <body>
-          <div class="container">
+          <div class="email-container">
             <div class="header">
               <h1>🎉 Registration Successful!</h1>
             </div>
             <div class="content">
-              <h2>Welcome to ${eventTitle}</h2>
-              <p>Thank you for registering! We're excited to have you join us.</p>
+              <h2 style="color: #1f2937; margin-top: 0;">Welcome to ${eventTitle}</h2>
+              <p style="font-size: 16px; color: #4b5563;">
+                Thank you for registering! We're excited to have you join us.
+              </p>
               
               <div class="qr-container">
-                <p><strong>Your Check-in QR Code:</strong></p>
-                <img src="${qrCode}" alt="QR Code" class="qr-code" />
-                <p style="color: #059669; font-weight: bold;">Please save this QR code</p>
-                <p style="font-size: 14px; color: #666;">You'll need to present this at the event entrance for check-in.</p>
+                <p style="margin: 0 0 15px 0; font-weight: bold; color: #1f2937; font-size: 18px;">
+                  Your Check-in QR Code
+                </p>
+                <img src="cid:qrcode" alt="QR Code" class="qr-code" />
+                <p style="color: #059669; font-weight: bold; margin: 20px 0 10px 0; font-size: 16px;">
+                  ✓ Please save this QR code
+                </p>
+                <p style="font-size: 14px; color: #6b7280; margin: 0;">
+                  You'll need to present this at the event entrance for check-in.
+                </p>
               </div>
               
-              <div style="background: #e0f2fe; padding: 15px; border-left: 4px solid #0284c7; margin: 20px 0; border-radius: 4px;">
-                <p style="margin: 0;"><strong>📱 Tip:</strong> Save this email or take a screenshot of your QR code for easy access at the event.</p>
+              <div class="info-box">
+                <p style="font-weight: bold; color: #0369a1; margin-bottom: 8px;">
+                  📱 Quick Tip
+                </p>
+                <p style="color: #475569;">
+                  Save this email or take a screenshot of your QR code for easy access at the event. 
+                  You can also print it out if you prefer!
+                </p>
               </div>
               
-              <p>If you have any questions, please don't hesitate to contact the event organizers.</p>
+              <p style="font-size: 16px; color: #4b5563;">
+                If you have any questions, please don't hesitate to contact the event organizers.
+              </p>
               
-              <p>See you at the event! 🎊</p>
+              <p style="font-size: 16px; color: #4b5563; margin-top: 30px;">
+                See you at the event! 🎊
+              </p>
             </div>
             <div class="footer">
-              <p>This is an automated message from the SME Events Platform</p>
+              <p style="margin: 0;">This is an automated message from the SME Events Platform</p>
+              <p style="margin: 10px 0 0 0; font-size: 12px;">
+                Please do not reply to this email
+              </p>
             </div>
           </div>
         </body>
@@ -82,45 +173,133 @@ export const sendQREmail = async (email, qrCode, eventTitle, language = 'en') =>
       subject: `تأكيد التسجيل - ${eventTitle}`,
       body: `
         <!DOCTYPE html>
-        <html dir="rtl">
+        <html dir="rtl" lang="ar">
         <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
           <style>
-            body { font-family: 'Tajawal', Arial, sans-serif; line-height: 1.6; color: #333; direction: rtl; }
-            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-            .header { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
-            .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
-            .qr-container { background: white; padding: 20px; text-align: center; margin: 20px 0; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-            .qr-code { max-width: 300px; height: auto; }
-            .footer { text-align: center; margin-top: 20px; font-size: 12px; color: #666; }
-            .button { display: inline-block; padding: 12px 24px; background: #10b981; color: white; text-decoration: none; border-radius: 6px; margin: 10px 0; }
+            body { 
+              font-family: 'Segoe UI', Tahoma, Arial, sans-serif; 
+              line-height: 1.6; 
+              color: #333; 
+              margin: 0;
+              padding: 0;
+              background-color: #f4f4f4;
+              direction: rtl;
+            }
+            .email-container {
+              max-width: 600px;
+              margin: 0 auto;
+              background-color: #ffffff;
+            }
+            .header { 
+              background: linear-gradient(135deg, #10b981 0%, #059669 100%); 
+              color: white; 
+              padding: 40px 30px; 
+              text-align: center;
+            }
+            .header h1 {
+              margin: 0;
+              font-size: 28px;
+              font-weight: bold;
+            }
+            .content { 
+              padding: 40px 30px;
+            }
+            .qr-container { 
+              background: #f9fafb; 
+              padding: 30px; 
+              text-align: center; 
+              margin: 30px 0; 
+              border-radius: 12px;
+              border: 2px dashed #d1d5db;
+            }
+            .qr-code { 
+              max-width: 280px;
+              width: 100%;
+              height: auto; 
+              display: block;
+              margin: 0 auto;
+            }
+            .info-box {
+              background: #e0f2fe; 
+              padding: 20px; 
+              border-right: 4px solid #0284c7; 
+              margin: 25px 0; 
+              border-radius: 6px;
+            }
+            .info-box p {
+              margin: 0;
+              line-height: 1.5;
+            }
+            .footer { 
+              text-align: center; 
+              padding: 30px;
+              background-color: #f9fafb;
+              color: #6b7280;
+              font-size: 14px;
+              border-top: 1px solid #e5e7eb;
+            }
+            @media only screen and (max-width: 600px) {
+              .header h1 {
+                font-size: 24px;
+              }
+              .content {
+                padding: 30px 20px;
+              }
+              .qr-code {
+                max-width: 220px;
+              }
+            }
           </style>
         </head>
         <body>
-          <div class="container">
+          <div class="email-container">
             <div class="header">
               <h1>🎉 تم التسجيل بنجاح!</h1>
             </div>
             <div class="content">
-              <h2>مرحباً بك في ${eventTitle}</h2>
-              <p>شكراً لتسجيلك! نحن متحمسون لانضمامك إلينا.</p>
+              <h2 style="color: #1f2937; margin-top: 0;">مرحباً بك في ${eventTitle}</h2>
+              <p style="font-size: 16px; color: #4b5563;">
+                شكراً لتسجيلك! نحن متحمسون لانضمامك إلينا.
+              </p>
               
               <div class="qr-container">
-                <p><strong>رمز QR الخاص بك:</strong></p>
-                <img src="${qrCode}" alt="رمز QR" class="qr-code" />
-                <p style="color: #059669; font-weight: bold;">يرجى حفظ رمز QR هذا</p>
-                <p style="font-size: 14px; color: #666;">ستحتاج إلى تقديم هذا عند مدخل الفعالية لتسجيل الدخول.</p>
+                <p style="margin: 0 0 15px 0; font-weight: bold; color: #1f2937; font-size: 18px;">
+                  رمز QR الخاص بك
+                </p>
+                <img src="cid:qrcode" alt="رمز QR" class="qr-code" />
+                <p style="color: #059669; font-weight: bold; margin: 20px 0 10px 0; font-size: 16px;">
+                  ✓ يرجى حفظ رمز QR هذا
+                </p>
+                <p style="font-size: 14px; color: #6b7280; margin: 0;">
+                  ستحتاج إلى تقديم هذا عند مدخل الفعالية لتسجيل الدخول.
+                </p>
               </div>
               
-              <div style="background: #e0f2fe; padding: 15px; border-right: 4px solid #0284c7; margin: 20px 0; border-radius: 4px;">
-                <p style="margin: 0;"><strong>📱 نصيحة:</strong> احفظ هذا البريد الإلكتروني أو التقط لقطة شاشة لرمز QR الخاص بك لسهولة الوصول إليه في الفعالية.</p>
+              <div class="info-box">
+                <p style="font-weight: bold; color: #0369a1; margin-bottom: 8px;">
+                  📱 نصيحة سريعة
+                </p>
+                <p style="color: #475569;">
+                  احفظ هذا البريد الإلكتروني أو التقط لقطة شاشة لرمز QR الخاص بك لسهولة الوصول إليه في الفعالية. 
+                  يمكنك أيضاً طباعته إذا كنت تفضل ذلك!
+                </p>
               </div>
               
-              <p>إذا كان لديك أي أسئلة، يرجى عدم التردد في الاتصال بمنظمي الفعالية.</p>
+              <p style="font-size: 16px; color: #4b5563;">
+                إذا كان لديك أي أسئلة، يرجى عدم التردد في الاتصال بمنظمي الفعالية.
+              </p>
               
-              <p>نراكم في الفعالية! 🎊</p>
+              <p style="font-size: 16px; color: #4b5563; margin-top: 30px;">
+                نراكم في الفعالية! 🎊
+              </p>
             </div>
             <div class="footer">
-              <p>هذه رسالة تلقائية من منصة فعاليات الشركات الصغيرة والمتوسطة</p>
+              <p style="margin: 0;">هذه رسالة تلقائية من منصة فعاليات الشركات الصغيرة والمتوسطة</p>
+              <p style="margin: 10px 0 0 0; font-size: 12px;">
+                يرجى عدم الرد على هذا البريد الإلكتروني
+              </p>
             </div>
           </div>
         </body>
@@ -132,12 +311,20 @@ export const sendQREmail = async (email, qrCode, eventTitle, language = 'en') =>
   // Select content based on language
   const content = translations[language] || translations.en;
 
-  // Email configuration
+  // Email configuration with embedded image using CID (Content-ID)
   const mailOptions = {
     from: `"SME Events Platform" <${process.env.EMAIL_USER}>`,
     to: email,
     subject: content.subject,
-    html: content.body
+    html: content.body,
+    attachments: [
+      {
+        filename: 'qrcode.png',
+        content: qrBase64,
+        encoding: 'base64',
+        cid: 'qrcode' // This CID is referenced in the HTML as src="cid:qrcode"
+      }
+    ]
   };
 
   try {
