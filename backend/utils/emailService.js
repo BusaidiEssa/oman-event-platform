@@ -3,14 +3,10 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-// Configure SendGrid with your API key from .env
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
-// English & Arabic email content translations
 export const sendQREmail = async (email, qrCode, eventTitle, language = 'en') => {
-  // Extract base64 data from QR code data URL
-  const qrBase64 = qrCode.replace(/^data:image\/png;base64,/, '');
-
+  
   const translations = {
     en: {
       subject: `Registration Confirmation - ${eventTitle}`,
@@ -109,7 +105,7 @@ export const sendQREmail = async (email, qrCode, eventTitle, language = 'en') =>
                 <p style="margin: 0 0 15px 0; font-weight: bold; color: #1f2937; font-size: 18px;">
                   Your Check-in QR Code
                 </p>
-                <img src="cid:qrcode" alt="QR Code" class="qr-code" />
+                <img src="${qrCode}" alt="QR Code" class="qr-code" />
                 <p style="color: #059669; font-weight: bold; margin: 20px 0 10px 0; font-size: 16px;">
                   ✓ Please save this QR code
                 </p>
@@ -240,11 +236,11 @@ export const sendQREmail = async (email, qrCode, eventTitle, language = 'en') =>
               </p>
               <div class="qr-container">
                 <p style="margin: 0 0 15px 0; font-weight: bold; color: #1f2937; font-size: 18px;">
-                     الخاص بكQR هذا
+                  رمز QR الخاص بك
                 </p>
-                <img src="cid:qrcode" alt="رمز QR" class="qr-code" />
+                <img src="${qrCode}" alt="رمز QR" class="qr-code" />
                 <p style="color: #059669; font-weight: bold; margin: 20px 0 10px 0; font-size: 16px;">
-                    QR  يرجى حفظ رمز 
+                  ✓ يرجى حفظ رمز QR
                 </p>
                 <p style="font-size: 14px; color: #6b7280; margin: 0;">
                   ستحتاج إلى تقديم هذا عند مدخل الفعالية لتسجيل الدخول.
@@ -255,7 +251,7 @@ export const sendQREmail = async (email, qrCode, eventTitle, language = 'en') =>
                   📱 نصيحة سريعة
                 </p>
                 <p style="color: #475569;">
-                  احفظ هذا البريد الإلكتروني أو التقط لقطة شاشة لرمز  الخاص بك لسهولة الوصول إليه في الفعالية. 
+                  احفظ هذا البريد الإلكتروني أو التقط لقطة شاشة لرمز QR الخاص بك لسهولة الوصول إليه في الفعالية. 
                   يمكنك أيضاً طباعته إذا كنت تفضل ذلك!
                 </p>
               </div>
@@ -279,24 +275,16 @@ export const sendQREmail = async (email, qrCode, eventTitle, language = 'en') =>
     }
   };
 
-  // Select content based on language
   const content = translations[language] || translations.en;
 
-  // Compose SendGrid email message
   const msg = {
     to: email,
-    from: process.env.EMAIL_FROM, 
+    from: {
+      email: process.env.EMAIL_FROM,
+      name: 'Oman Events Platform'
+    },
     subject: content.subject,
     html: content.body,
-    attachments: [
-      {
-        content: qrBase64,
-        filename: 'qrcode.png',
-        type: 'image/png',
-        disposition: 'inline',
-        content_id: 'qrcode'
-      }
-    ]
   };
 
   try {
