@@ -284,19 +284,20 @@ export const sendQREmail = async (email, qrCode, eventTitle, language = 'en') =>
 
   // Compose SendGrid email message
   const msg = {
-  to: email,
-  from: process.env.EMAIL_FROM, 
-  html: content.body,
-  attachments: [
-    {
-      content: qrBase64,
-      filename: 'qrcode.png',
-      type: 'image/png',
-      disposition: 'inline',
-      content_id: 'qrcode'
-    }
-  ]
-};
+    to: email,
+    from: process.env.EMAIL_FROM, 
+    subject: content.subject,
+    html: content.body,
+    attachments: [
+      {
+        content: qrBase64,
+        filename: 'qrcode.png',
+        type: 'image/png',
+        disposition: 'inline',
+        content_id: 'qrcode'
+      }
+    ]
+  };
 
   try {
     await sgMail.send(msg);
