@@ -2,18 +2,10 @@ import Registration from '../models/Registration.js';
 import Event from '../models/Event.js';
 import { generateQRCode } from '../utils/qrGenerator.js';
 import { sendQREmail } from '../utils/emailService.js';
-import nodemailer from 'nodemailer';
+import sgMail from '@sendgrid/mail'; // changed from nodemailer
 
-// Create email transporter
-const transporter = nodemailer.createTransport({
-  host: process.env.EMAIL_HOST,
-  port: process.env.EMAIL_PORT,
-  secure: false,
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS
-  }
-});
+
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 export const register = async (req, res) => {
   try {
@@ -247,7 +239,8 @@ export const getAnalytics = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-//send emails
+
+//send emails - ✅ UPDATED TO USE SENDGRID
 export const sendMassEmail = async (req, res) => {
   try {
     const { eventId } = req.params;
@@ -267,7 +260,6 @@ export const sendMassEmail = async (req, res) => {
     }
 
     // Verify the user owns this event
-    // Note: Your auth middleware uses req.managerId, not req.user.id
     if (event.managerId.toString() !== req.managerId.toString()) {
       return res.status(403).json({ message: 'Not authorized' });
     }
@@ -403,10 +395,10 @@ export const sendMassEmail = async (req, res) => {
           </html>
         `;
 
-        // Send email using nodemailer transporter
-        await transporter.sendMail({
-          from: process.env.EMAIL_USER,
+        // ✅ SEND EMAIL USING SENDGRID (replaced nodemailer)
+        await sgMail.send({
           to: registration.email,
+          from: process.env.EMAIL_FROM,
           subject: personalizedSubject,
           html: emailHtml
         });
