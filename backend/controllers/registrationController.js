@@ -2,7 +2,7 @@ import Registration from '../models/Registration.js';
 import Event from '../models/Event.js';
 import { generateQRCode } from '../utils/qrGenerator.js';
 import { sendQREmail } from '../utils/emailService.js';
-import sgMail from '@sendgrid/mail'; // changed from nodemailer
+import sgMail from '@sendgrid/mail'; 
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
