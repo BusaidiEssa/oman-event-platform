@@ -87,7 +87,7 @@ export const getEventById = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-
+// retrieve event by slug
 export const getEventBySlug = async (req, res) => {
   try {
     const event = await Event.findOne({ slug: req.params.slug });
@@ -140,7 +140,7 @@ export const updateEvent = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-
+// handles delete event
 export const deleteEvent = async (req, res) => {
   try {
     const event = await Event.findOneAndDelete({
@@ -172,7 +172,7 @@ export const addStakeholderGroup = async (req, res) => {
       return res.status(404).json({ message: 'Event not found' });
     }
 
-    //  AUTO-INITIALIZE with Name and Email fields
+    //  always initiliaze group form with mandotary Name and Email fields
     let initializedFields = fields || [];
     
     // Check if Name field exists
