@@ -79,7 +79,7 @@ export const register = async (req, res) => {
       console.log(`:D Registration email sent successfully to ${email}`);
     } catch (emailError) {
       console.error(`D; Failed to send email to ${email}:`, emailError.message);
-      // Don't fail the registration if email fails, just log it
+      // Don't fail the registration if email fails, just log it to allow manual check in at venue
     }
 
     res.status(201).json({
@@ -94,7 +94,7 @@ export const register = async (req, res) => {
   }
 };
 
-//retreive registrations
+//retrieve registrations
 export const getRegistrations = async (req, res) => {
   try {
     const { eventId } = req.params;
@@ -240,7 +240,7 @@ export const getAnalytics = async (req, res) => {
   }
 };
 
-//send emails - ✅ UPDATED TO USE SENDGRID
+//send emails  using Sendgrid
 export const sendMassEmail = async (req, res) => {
   try {
     const { eventId } = req.params;
