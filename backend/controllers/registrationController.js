@@ -2,7 +2,7 @@ import Registration from '../models/Registration.js';
 import Event from '../models/Event.js';
 import { generateQRCode } from '../utils/qrGenerator.js';
 import { sendQREmail } from '../utils/emailService.js';
-import sgMail from '@sendgrid/mail';
+import sgMail from '@sendgrid/mail'; // changed from nodemailer
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
@@ -51,7 +51,7 @@ export const register = async (req, res) => {
       .toString(36)
       .substr(2, 9)}`;
 
-    //  Generate QR code using ONLY the registrationId
+    // Generate QR code using ONLY the registrationId
     const qrCode = await generateQRCode(registrationId);
 
     const registration = new Registration({
@@ -81,7 +81,7 @@ export const register = async (req, res) => {
     res.status(201).json({
       message: 'Registration successful',
       qrCode,
-      registrationId: registration.qrCode, 
+      registrationId: registration.qrCode, // ✅ return actual QR ID
       emailSent: true
     });
   } catch (error) {
@@ -184,8 +184,7 @@ export const checkIn = async (req, res) => {
         qrCode = parsed.registrationId;
       }
     } catch (e) {
-      // Not JSON → new QR format (string), safe to continue
-    }
+        }
 
     const registration = await Registration.findOne({ qrCode });
     if (!registration) {
