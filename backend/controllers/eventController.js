@@ -1,34 +1,37 @@
-import Event from '../models/Event.js';
+import Event from '../models/Event.js'; // Import the Event model to interact with the database
 
+// Controller to handle event creation
 export const createEvent = async (req, res) => {
   try {
-    const { title, date, location, description } = req.body;
+    const { title, date, location, description } = req.body; // Extract data from request body
     
-    // Generate slug from title
+    // Generate slug from event title
     const baseSlug = title.toLowerCase()
-      .replace(/[^a-z0-9\s-]/g, '')
-      .replace(/\s+/g, '-')
-      .substring(0, 50); // Limit length
+      .replace(/[^a-z0-9\s-]/g, '') // Remove any special characters
+      .replace(/\s+/g, '-')         // Replace spaces with dashes
+      .substring(0, 50);            // Restrict slug length to the first 50 characters
 
-    // Ensure unique slug
-    let slug = baseSlug;
-    let counter = 1;
+    let slug = baseSlug; // Start with the base slug
+    let counter = 1;     // Initialize a counter for ensuring uniqueness
+    // Check the database to ensure the slug is unique
     while (await Event.findOne({ slug })) {
-      slug = `${baseSlug}-${counter}`;
+      slug = `${baseSlug}-${counter}`; // Append a counter to create a unique slug
       counter++;
     }
 
+    // Create a new Event instance and populate its details
     const event = new Event({
-      title,
-      slug,
-      date,
-      location,
-      description,
-      groups: [],
-      managerId: req.managerId
+      title,          
+      slug,           
+      date,           
+      location,       
+      description,    
+      groups: [],     
+      managerId: req.managerId // Associate the event with the current manager, pulled from JWT payload
     });
-
+    // Save the event to the database
     await event.save();
+
     res.status(201).json(event);
   } catch (error) {
     res.status(500).json({ message: error.message });
