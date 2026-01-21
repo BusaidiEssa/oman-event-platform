@@ -3,13 +3,13 @@ import mongoose from 'mongoose';
 
 //field schema 
 const fieldSchema = new mongoose.Schema({
-  label: String,
+  label: String, //the name of a field  (e.g., "Full Name")
   type: {
-    type: String,
-    enum: ['text', 'number', 'select', 'file']
+    type: String, 
+    enum: ['text', 'number', 'select', 'file'] //the allowed field types: text box, number input , select dropdown or file upload
   },
-  options: [String],
-  required: Boolean
+  options: [String],// Array of options that is only aplicable if type is  select 
+  required: Boolean // Indicated whether the field is required or not
 });
 //groupschema that uses the field schema
 const groupSchema = new mongoose.Schema({
@@ -17,7 +17,7 @@ const groupSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  capacity: {
+  capacity: {  //Maxmimum number of people  allowed in the group
     type: Number,
     required: true
   },
@@ -25,7 +25,7 @@ const groupSchema = new mongoose.Schema({
     type: Boolean,
     default: true // Registration form is open by default
   },
-  fields: [fieldSchema]
+  fields: [fieldSchema] //array of fields
 });
 //event schema that uses the group schema
 const eventSchema = new mongoose.Schema({
@@ -34,7 +34,7 @@ const eventSchema = new mongoose.Schema({
     required: true
   },
   slug: {
-    type: String,
+    type: String, //URL friendly identifier for the event derived from title
     required: true,
     unique: true
   },
@@ -44,15 +44,15 @@ const eventSchema = new mongoose.Schema({
   },
   location: String,
   description: String,
-  groups: [groupSchema],
-  managerId: {
+  groups: [groupSchema], //groups embedded as part of the evtn
+  managerId: { //references the manager who created the event
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Manager',
     required: true
   },
   createdAt: {
     type: Date,
-    default: Date.now
+    default: Date.now // the date and time of event creation 
   }
 });
 
