@@ -1,12 +1,12 @@
 import mongoose from 'mongoose';
-
+// defines the schema for the manager collection
 const managerSchema = new mongoose.Schema({
   email: {
     type: String,
     required: true,
     unique: true,
-    lowercase: true,
-    trim: true
+    lowercase: true, //converts email to lowercase to ensure consistency
+    trim: true //remove any leading or trailing spaces
   },
   password: {
     type: String,
