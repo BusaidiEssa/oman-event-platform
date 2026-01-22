@@ -6,6 +6,8 @@ dotenv.config();
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 export const sendQREmail = async (email, qrCode, eventTitle, language = 'en') => {
+  // Extract base64 data from data URL (remove "data:image/png;base64," prefix)
+  const base64Data = qrCode.split(',')[1];
   
   const translations = {
     en: {
@@ -52,12 +54,16 @@ export const sendQREmail = async (email, qrCode, eventTitle, language = 'en') =>
               border-radius: 12px;
               border: 2px dashed #d1d5db;
             }
-            .qr-code { 
-              max-width: 280px;
-              width: 100%;
-              height: auto; 
-              display: block;
-              margin: 0 auto;
+            .attachment-notice {
+              background: #e0f2fe;
+              padding: 20px;
+              border-radius: 8px;
+              margin: 20px 0;
+              text-align: center;
+            }
+            .attachment-icon {
+              font-size: 48px;
+              margin-bottom: 10px;
             }
             .info-box {
               background: #e0f2fe; 
@@ -85,9 +91,6 @@ export const sendQREmail = async (email, qrCode, eventTitle, language = 'en') =>
               .content {
                 padding: 30px 20px;
               }
-              .qr-code {
-                max-width: 220px;
-              }
             }
           </style>
         </head>
@@ -102,24 +105,31 @@ export const sendQREmail = async (email, qrCode, eventTitle, language = 'en') =>
                 Thank you for registering! We're excited to have you join us.
               </p>
               <div class="qr-container">
-                <p style="margin: 0 0 15px 0; font-weight: bold; color: #1f2937; font-size: 18px;">
-                  Your Check-in QR Code
-                </p>
-                <img src="${qrCode}" alt="QR Code" class="qr-code" />
+                <div class="attachment-notice">
+                  <div class="attachment-icon">📎</div>
+                  <p style="margin: 0 0 10px 0; font-weight: bold; color: #1f2937; font-size: 18px;">
+                    Your Check-in QR Code is Attached
+                  </p>
+                  <p style="font-size: 14px; color: #6b7280; margin: 0;">
+                    Please check the attachment: <strong>qr-code.png</strong>
+                  </p>
+                </div>
                 <p style="color: #059669; font-weight: bold; margin: 20px 0 10px 0; font-size: 16px;">
-                  ✓ Please save this QR code
+                  ✓ Save the attached QR code image
                 </p>
                 <p style="font-size: 14px; color: #6b7280; margin: 0;">
-                  You'll need to present this at the event entrance for check-in.
+                  You'll need to present this QR code at the event entrance for check-in.
                 </p>
               </div>
               <div class="info-box">
                 <p style="font-weight: bold; color: #0369a1; margin-bottom: 8px;">
-                  📱 Quick Tip
+                  📱 Quick Tips
                 </p>
                 <p style="color: #475569;">
-                  Save this email or take a screenshot of your QR code for easy access at the event. 
-                  You can also print it out if you prefer!
+                  • Download and save the attached QR code image<br>
+                  • Keep it on your phone for easy access at the event<br>
+                  • You can also print it out if you prefer<br>
+                  • The QR code file is named: <strong>qr-code.png</strong>
                 </p>
               </div>
               <p style="font-size: 16px; color: #4b5563;">
@@ -185,12 +195,16 @@ export const sendQREmail = async (email, qrCode, eventTitle, language = 'en') =>
               border-radius: 12px;
               border: 2px dashed #d1d5db;
             }
-            .qr-code { 
-              max-width: 280px;
-              width: 100%;
-              height: auto; 
-              display: block;
-              margin: 0 auto;
+            .attachment-notice {
+              background: #e0f2fe;
+              padding: 20px;
+              border-radius: 8px;
+              margin: 20px 0;
+              text-align: center;
+            }
+            .attachment-icon {
+              font-size: 48px;
+              margin-bottom: 10px;
             }
             .info-box {
               background: #e0f2fe; 
@@ -218,9 +232,6 @@ export const sendQREmail = async (email, qrCode, eventTitle, language = 'en') =>
               .content {
                 padding: 30px 20px;
               }
-              .qr-code {
-                max-width: 220px;
-              }
             }
           </style>
         </head>
@@ -235,24 +246,31 @@ export const sendQREmail = async (email, qrCode, eventTitle, language = 'en') =>
                 شكراً لتسجيلك! نحن متحمسون لانضمامك إلينا.
               </p>
               <div class="qr-container">
-                <p style="margin: 0 0 15px 0; font-weight: bold; color: #1f2937; font-size: 18px;">
-                  رمز QR الخاص بك
-                </p>
-                <img src="${qrCode}" alt="رمز QR" class="qr-code" />
+                <div class="attachment-notice">
+                  <div class="attachment-icon">📎</div>
+                  <p style="margin: 0 0 10px 0; font-weight: bold; color: #1f2937; font-size: 18px;">
+                    رمز QR الخاص بك مرفق
+                  </p>
+                  <p style="font-size: 14px; color: #6b7280; margin: 0;">
+                    يرجى التحقق من المرفق: <strong>qr-code.png</strong>
+                  </p>
+                </div>
                 <p style="color: #059669; font-weight: bold; margin: 20px 0 10px 0; font-size: 16px;">
-                  ✓ يرجى حفظ رمز QR
+                  ✓ احفظ صورة رمز QR المرفقة
                 </p>
                 <p style="font-size: 14px; color: #6b7280; margin: 0;">
-                  ستحتاج إلى تقديم هذا عند مدخل الفعالية لتسجيل الدخول.
+                  ستحتاج إلى تقديم رمز QR هذا عند مدخل الفعالية لتسجيل الدخول.
                 </p>
               </div>
               <div class="info-box">
                 <p style="font-weight: bold; color: #0369a1; margin-bottom: 8px;">
-                  📱 نصيحة سريعة
+                  📱 نصائح سريعة
                 </p>
                 <p style="color: #475569;">
-                  احفظ هذا البريد الإلكتروني أو التقط لقطة شاشة لرمز QR الخاص بك لسهولة الوصول إليه في الفعالية. 
-                  يمكنك أيضاً طباعته إذا كنت تفضل ذلك!
+                  • قم بتنزيل وحفظ صورة رمز QR المرفقة<br>
+                  • احتفظ بها على هاتفك لسهولة الوصول إليها في الفعالية<br>
+                  • يمكنك أيضاً طباعتها إذا كنت تفضل ذلك<br>
+                  • اسم ملف رمز QR: <strong>qr-code.png</strong>
                 </p>
               </div>
               <p style="font-size: 16px; color: #4b5563;">
@@ -285,6 +303,15 @@ export const sendQREmail = async (email, qrCode, eventTitle, language = 'en') =>
     },
     subject: content.subject,
     html: content.body,
+    attachments: [
+      {
+        content: base64Data,
+        filename: 'qr-code.png',
+        type: 'image/png',
+        disposition: 'attachment',
+        content_id: 'qrcode'
+      }
+    ]
   };
 
   try {
