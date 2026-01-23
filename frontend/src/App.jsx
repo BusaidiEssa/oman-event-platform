@@ -17,10 +17,18 @@ function App() {
     setIsAuthenticated(true);
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+  try {
+    // Call the backend API to clear the HTTP-only token cookie
+    await api.post('/auth/logout');
     localStorage.removeItem('token');
     setIsAuthenticated(false);
-  };
+    // Redirect user to the login page
+    navigate('/login');
+  } catch (error) {
+    console.error('Logout failed:', error);
+  }
+};
 
   const ProtectedRoute = ({ children }) => {
     return isAuthenticated ? children : <Navigate to="/login" />;
