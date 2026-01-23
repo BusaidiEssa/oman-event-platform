@@ -51,14 +51,16 @@ const EventDashboard = ({ onLogout }) => {
 
   const handleCopyLink = async (e, slug) => {
     e.stopPropagation();
-    
+    // generates registrationurl 
     const registrationUrl = `${window.location.origin}/register/${slug}`;
     
     try {
+      //copy the url to clipboard
       await navigator.clipboard.writeText(registrationUrl);
+      //update to show that the link was copied
       setCopiedSlug(slug);
       
-      // Reset after 2 seconds
+      // goes back to its initial state 
       setTimeout(() => {
         setCopiedSlug(null);
       }, 2000);
