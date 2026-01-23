@@ -78,9 +78,20 @@ export const login = async (req, res) => {
 };
 // handle logut
 export const logout = (req, res) => {
-  //remove JWT token
-  res.clearCookie('token');
-  res.json({ message: 'Logout successful' });
+  try {
+    // Remove JWT token cookie
+    res.clearCookie('token', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production', //  match the settings used in res.cookie 
+      sameSite: 'none', // Cross-origin cookies, use 'none' if needed
+    });
+
+    // Respond with a success message
+    res.status(200).json({ message: 'Logout successful' });
+  } catch (error) {
+    // Handle any unexpected errors
+    res.status(500).json({ message: 'Error during logout' });
+  }
 };
 // get current manager information
 export const getProfile = async (req, res) => {
