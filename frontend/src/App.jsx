@@ -17,26 +17,11 @@ function App() {
     setIsAuthenticated(true);
   };
 
-const handleLogout = async () => {
-  try {
-    // Call the logout API
-    await api.post('/auth/logout', null, {
-      withCredentials: true, // This ensures the cookies are included in the request
-    });
-
-    // Remove token from local storage
+ const handleLogout = () => {
     localStorage.removeItem('token');
-
-    // Update authentication state
     setIsAuthenticated(false);
+  };
 
-    // Provide feedback to the user or navigate
-    alert('Logout successful!');
-  } catch (err) {
-    console.error('Logout failed:', err.response?.data?.message || err.message);
-    alert('Failed to log out');
-  }
-};
   const ProtectedRoute = ({ children }) => {
     return isAuthenticated ? children : <Navigate to="/login" />;
   };
