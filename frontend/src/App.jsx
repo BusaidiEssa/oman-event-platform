@@ -20,6 +20,7 @@ function App() {
  const handleLogout = () => {
     localStorage.removeItem('token');
     setIsAuthenticated(false);
+    console.log("logout successful")
   };
 
   const ProtectedRoute = ({ children }) => {
