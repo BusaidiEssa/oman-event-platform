@@ -32,7 +32,7 @@ const EventDashboard = ({ onLogout }) => {
       setLoading(false);
     }
   };
-
+//calls api.delete 
   const handleDeleteEvent = async (e, eventId) => {
     e.stopPropagation();
     
@@ -42,6 +42,7 @@ const EventDashboard = ({ onLogout }) => {
 
     try {
       await api.delete(`/events/${eventId}`);
+      //reload page with the deleted event not showing
       setEvents(events.filter(e => e._id !== eventId));
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to delete event');
