@@ -9,7 +9,7 @@ export const createEvent = async (req, res) => {
     const baseSlug = title.toLowerCase()
       .replace(/[^a-z0-9\s-]/g, '') // Remove any special characters
       .replace(/\s+/g, '-')         // Replace spaces with dashes
-      .substring(0, 50);            // Restrict slug length to the first 50 characters
+      .substring(0, 50);            //  Limit the slug to 50 characters
 
     let slug = baseSlug; // Start with the base slug
     let counter = 1;     // Initialize a counter for ensuring uniqueness
@@ -105,41 +105,52 @@ export const getEventBySlug = async (req, res) => {
 
 export const updateEvent = async (req, res) => {
   try {
+    // Destructure the fields from the request body
     const { title, date, location, description } = req.body;
-    
+
+    // Find the event in the database by its ID and manager ID 
     const event = await Event.findOne({
-      _id: req.params.id,
-      managerId: req.managerId
+      _id: req.params.id,          // Match the event ID from the request parameters
+      managerId: req.managerId     // Ensure the current user is the manager of the event
     });
-    
+
+    // If the event is not found, return a 404 Not Found error
     if (!event) {
       return res.status(404).json({ message: 'Event not found' });
     }
 
-    // Update slug if title changed
+    // Check if the title has been updated
     if (title && title !== event.title) {
+      // Generate a new slug based on the new title
       const baseSlug = title.toLowerCase()
-        .replace(/[^a-z0-9\s-]/g, '')
-        .replace(/\s+/g, '-')
-        .substring(0, 50);
+        .replace(/[^a-z0-9\s-]/g, '')   // Remove any special characters
+        .replace(/\s+/g, '-')          // Replace spaces with dashes
+        .substring(0, 50);             // Limit the slug to 50 characters
 
+      // Check if the slug is unique, add a counter to avoid conflicts
       let slug = baseSlug;
       let counter = 1;
       while (await Event.findOne({ slug, _id: { $ne: event._id } })) {
-        slug = `${baseSlug}-${counter}`;
+        slug = `${baseSlug}-${counter}`;  // Append a counter to the slug
         counter++;
       }
+      // Update the event slug and title
       event.slug = slug;
       event.title = title;
     }
 
-    if (date) event.date = date;
-    if (location !== undefined) event.location = location;
-    if (description !== undefined) event.description = description;
+    // Update the other fields only if they are provided in the request body
+    if (date) event.date = date;                          // Update the event date
+    if (location !== undefined) event.location = location; // Update the location
+    if (description !== undefined) event.description = description; // Update the description
 
+    // Save the updated event to the database
     await event.save();
+
+    // Send the updated event as the response
     res.json(event);
   } catch (error) {
+    // Catch any errors and return a 500 Internal Server Error with the error message
     res.status(500).json({ message: error.message });
   }
 };
