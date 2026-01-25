@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useLanguage } from '../context/LanguageContext';
 import { CheckCircle, XCircle } from 'lucide-react';
 
-const QRScannerTab = ({ onCheckIn, isLoading, checkInResult }) => {
+const QRScannerTab = ({ onCheckIn, checkInResult }) => {
   const { isRTL } = useLanguage();
   const [lastScanned, setLastScanned] = useState('');
 

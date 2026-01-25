@@ -12,7 +12,6 @@ import {
   Filter, 
   Users, 
   CheckCircle, 
-  XCircle, 
   Loader2,
   AlertCircle
 } from 'lucide-react';

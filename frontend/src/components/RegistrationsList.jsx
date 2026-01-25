@@ -9,7 +9,7 @@ import QRScannerTab from './QRScannerTab';
 import RegistrationsListTab from './RegistrationsListTab';
 import api from '../api/axios';
 
-const RegistrationsList = ({ eventId, event }) => {
+const RegistrationsList = ({ eventId }) => {
   const [registrations, setRegistrations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');

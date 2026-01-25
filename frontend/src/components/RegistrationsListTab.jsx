@@ -9,7 +9,7 @@ import { useTranslation } from '../hooks/useTranslation';
 import { useLanguage } from '../context/LanguageContext';
 import api from '../api/axios';
 
-const RegistrationsListTab = ({ registrations, setRegistrations, eventId }) => {
+const RegistrationsListTab = ({ registrations, setRegistrations }) => {
   const [filteredRegistrations, setFilteredRegistrations] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedGroup, setSelectedGroup] = useState('all');
