@@ -1,7 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Bar, Pie } from 'react-chartjs-2';
-import { Chart as ChartJS, BarElement, ArcElement, Title, Tooltip, Legend } from 'chart.js';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  ArcElement,
+  Tooltip,
+  Legend
+} from 'chart.js';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -10,7 +18,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { useTranslation } from '../hooks/useTranslation';
 import api from '../api/axios';
 
-ChartJS.register(BarElement, ArcElement, Title, Tooltip, Legend);
+ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Tooltip, Legend);
 
 const EventAnalytics = ({ eventId }) => {
   const navigate = useNavigate();
@@ -32,6 +40,7 @@ const EventAnalytics = ({ eventId }) => {
   const fetchAnalytics = async () => {
     try {
       setRefreshing(true);
+      setLoading(true);
       const [analyticsRes, eventsRes] = await Promise.all([
         api.get(`/registrations/${eventId}/analytics`),
         api.get('/events'),
@@ -39,7 +48,7 @@ const EventAnalytics = ({ eventId }) => {
 
       setAnalytics(analyticsRes.data || []);
       const currentEvent = eventsRes.data.find((e) => e._id === eventId);
-      setEvent(currentEvent);
+      setEvent(currentEvent || {});
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to fetch analytics');
     } finally {
@@ -54,20 +63,17 @@ const EventAnalytics = ({ eventId }) => {
     const headers = isRTL
       ? ['المجموعة', 'السعة', 'التسجيلات', 'حضور مسجل', 'متاح', 'النسبة']
       : ['Group', 'Capacity', 'Registrations', 'Checked In', 'Available', 'Rate'];
-
+    
     const rows = analytics.map((group) => [
       group.groupName,
       group.capacity,
       group.registrations,
       group.checkedIn,
       group.available,
-      `${((group.registrations / group.capacity) * 100).toFixed(1)}%`,
+      `${((group.registrations / Math.max(group.capacity, 1)) * 100).toFixed(1)}%`,
     ]);
 
-    const csvContent = [
-      headers.join(','),
-      ...rows.map((row) => row.join(',')),
-    ].join('\n');
+    const csvContent = [headers.join(','), ...rows.map((row) => row.join(','))].join('\n');
 
     const blob = new Blob([csvContent], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
@@ -104,6 +110,7 @@ const EventAnalytics = ({ eventId }) => {
     ? ((totals.totalCheckedIn / totals.totalRegistrations) * 100).toFixed(1)
     : 0;
 
+  // Bar Chart Data
   const barChartData = {
     labels: analytics.map((group) => group.groupName),
     datasets: [
@@ -115,18 +122,17 @@ const EventAnalytics = ({ eventId }) => {
     ],
   };
 
+  // Pie Chart Data
   const pieChartData = {
-    labels: analytics.map((group) => group.groupName),
+    labels: [t.checkedIn, t.pending],
     datasets: [
       {
-        label: isRTL ? 'حضور مسجل' : 'Checked In',
-        data: analytics.map((group) => group.checkedIn),
-        backgroundColor: analytics.map(
-          (_, index) =>
-            ['#42A5F5', '#AB47BC', '#FF7043', '#66BB6A', '#FFA726'][
-              index % 5
-            ]
-        ),
+        label: t['Check-in Status'],
+        data: [
+          totals.totalCheckedIn,
+          totals.totalRegistrations - totals.totalCheckedIn,
+        ],
+        backgroundColor: ['#10b981', '#f59e0b'], // Green for checked-in, Orange for pending
       },
     ],
   };
@@ -137,40 +143,59 @@ const EventAnalytics = ({ eventId }) => {
       <div className="flex gap-3 justify-end">
         <Button variant="outline" onClick={fetchAnalytics} disabled={refreshing}>
           <RefreshCw className={`w-4 h-4 me-2 ${refreshing ? 'animate-spin' : ''}`} />
-          {t['refresh']}
+          {isRTL ? 'تحديث' : 'Refresh'}
         </Button>
         <Button variant="outline" onClick={handleExportCSV}>
           <Download className="w-4 h-4 me-2" />
-          {t['exportCSV']}
+          {isRTL ? 'تصدير CSV' : 'Export CSV'}
         </Button>
       </div>
 
+      {/* Error Alert */}
+      {error && (
+        <Alert variant="destructive">
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
+
       {/* Summary Cards */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-        {/* Registration card summaries code (no change needed) */}
+        <Card>
+          <CardHeader className="pb-3">
+            <CardDescription className="text-xs uppercase tracking-wide">
+              {isRTL ? 'إجمالي التسجيلات' : 'Total Registrations'}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="text-4xl font-bold text-blue-600">{totals.totalRegistrations}</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardDescription>{isRTL ? 'حضور مسجل' : 'Checked In'}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {totals.totalCheckedIn}
+          </CardContent>
+        </Card>
       </div>
 
-      {/* Charts using Chart.js */}
+      {/* Charts */}
       <div className="grid gap-6 lg:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>
-              {isRTL ? 'التسجيلات حسب المجموعة' : 'Registrations by Group'}
-            </CardTitle>
+            <CardTitle>{isRTL ? 'التسجيلات حسب المجموعة' : 'Registrations by Group'}</CardTitle>
           </CardHeader>
           <CardContent>
-            <Bar data={barChartData} options={{ responsive: true, maintainAspectRatio: false }} />
+            <Bar data={barChartData} options={{ responsive: true }} />
           </CardContent>
         </Card>
-
         <Card>
           <CardHeader>
-            <CardTitle>
-              {isRTL ? 'حالة تسجيل الدخول' : 'Check-in Status'}
-            </CardTitle>
+            <CardTitle>{isRTL ? 'حالة تسجيل الدخول' : 'Check-in Status'}</CardTitle>
           </CardHeader>
           <CardContent>
-            <Pie data={pieChartData} options={{ responsive: true, maintainAspectRatio: false }} />
+            <Pie data={pieChartData} options={{ responsive: true }} />
           </CardContent>
         </Card>
       </div>
