@@ -35,70 +35,57 @@ const RegistrationsList = ({ eventId, event }) => {
       setLoading(false);
     }
   };
-
   const performCheckIn = async (qrCodeData) => {
-    // Handle both string and object formats
-    let qrCode = qrCodeData;
-    
-    if (typeof qrCodeData === 'object') {
-      // If it's an object, extract the registrationId
-      qrCode = qrCodeData.registrationId || qrCodeData.qrCode;
+    // Ensure only object format is handled
+    if (typeof qrCodeData !== "object" || (!qrCodeData.registrationId && !qrCodeData.qrCode)) {
+      setCheckInResult({
+        success: false,
+        message: "Invalid QR code data format",
+      });
+
+      // Auto-clear result after 3 seconds
+      setTimeout(() => {
+        setCheckInResult(null);
+      }, 3000);
+      return; // Exit early for invalid format
     }
 
-    if (!qrCode || !qrCode.trim()) {
-      console.error('Invalid QR code data:', qrCodeData);
-      return;
-    }
+    // Extract the registrationId or qrCode
+    const qrCode = qrCodeData.registrationId || qrCodeData.qrCode;
 
     setCheckInLoading(true);
     setCheckInResult(null);
-    setError('');
 
     try {
-      console.log('Checking in with QR code:', qrCode);
-      
-      const response = await api.post('/registrations/checkin', {
-        qrCode: qrCode.trim()
+      const response = await api.post("/registrations/checkin", {
+        qrCode: qrCode.trim(),
       });
 
       setCheckInResult({
         success: true,
-        data: response.data
+        data: response.data,
       });
 
       // Update local registrations
-      setRegistrations(registrations.map(r =>
-        r._id === response.data.registration._id
-          ? response.data.registration
-          : r
-      ));
+      setRegistrations(
+        registrations.map((r) =>
+          r._id === response.data.registration._id ? response.data.registration : r
+        )
+      );
 
       // Auto-clear result after 3 seconds
       setTimeout(() => {
         setCheckInResult(null);
       }, 3000);
     } catch (err) {
-      console.error('Check-in error:', err);
-      const errorMessage = err.response?.data?.message || 'Check-in failed';
+      const errorMessage = err.response?.data?.message || "Check-in failed";
 
-      if (err.response?.status === 400 && errorMessage.includes('Already checked in')) {
-        setCheckInResult({
-          success: false,
-          message: isRTL ? 'تم تسجيل الدخول مسبقاً' : 'Already checked in',
-          data: err.response.data
-        });
-      } else if (err.response?.status === 404) {
-        setCheckInResult({
-          success: false,
-          message: isRTL ? 'رمز QR غير صالح' : 'Invalid QR code'
-        });
-      } else {
-        setCheckInResult({
-          success: false,
-          message: errorMessage
-        });
-      }
+      setCheckInResult({
+        success: false,
+        message: errorMessage,
+      });
 
+      // Auto-clear result after 3 seconds
       setTimeout(() => {
         setCheckInResult(null);
       }, 3000);
@@ -106,16 +93,7 @@ const RegistrationsList = ({ eventId, event }) => {
       setCheckInLoading(false);
     }
   };
-
-  if (loading) {
-    return (
-      <Card>
-        <CardContent className="py-12 text-center">
-          {t.loading}
-        </CardContent>
-      </Card>
-    );
-  }
+ 
 
   return (
     <div className="space-y-6">
