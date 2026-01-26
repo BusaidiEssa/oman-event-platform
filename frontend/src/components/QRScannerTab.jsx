@@ -32,7 +32,7 @@ const QRScannerTab = ({ onCheckIn, isLoading, checkInResult }) => {
         }
       } catch (parseError) {
         // If not JSON, treat as plain text (old format or manual entry)
-        onCheckIn(scannedText);
+        console.error('Invalid QR data: Not in valid JSON format', parseError);
       }
 
       // Clear after 2 seconds to allow re-scanning
