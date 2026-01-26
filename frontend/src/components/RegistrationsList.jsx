@@ -13,7 +13,7 @@ const RegistrationsList = ({ eventId, event }) => {
   const [registrations, setRegistrations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [scanMode, setScanMode] = useState('scanner'); // 'scanner' or 'list'
+  const [scanMode, setScanMode] = useState('scanner'); // 'scanner' 
   const [checkInLoading, setCheckInLoading] = useState(false);
   const [checkInResult, setCheckInResult] = useState(null);
 
