@@ -257,30 +257,7 @@ const MassEmailTab = ({ eventId, registrations }) => {
             </p>
           </div>
 
-          {/* Preview Section */}
-          {(emailData.subject || emailData.message) && (
-            <div className="p-4 bg-gray-50 rounded-md border">
-              <h4 className="font-semibold mb-2 text-sm text-gray-700">
-                {isRTL ? 'معاينة' : 'Preview'}
-              </h4>
-              {emailData.subject && (
-                <div className="mb-2">
-                  <span className="text-xs text-gray-500">
-                    {isRTL ? 'الموضوع:' : 'Subject:'}
-                  </span>
-                  <p className="text-sm font-medium">{emailData.subject}</p>
-                </div>
-              )}
-              {emailData.message && (
-                <div>
-                  <span className="text-xs text-gray-500">
-                    {isRTL ? 'الرسالة:' : 'Message:'}
-                  </span>
-                  <p className="text-sm whitespace-pre-wrap">{emailData.message}</p>
-                </div>
-              )}
-            </div>
-          )}
+         
 
           {/* Success/Error Messages */}
           {success && (
