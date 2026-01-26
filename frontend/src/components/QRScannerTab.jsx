@@ -31,7 +31,7 @@ const QRScannerTab = ({ onCheckIn, isLoading, checkInResult }) => {
           console.error('No registrationId found in QR data');
         }
       } catch (parseError) {
-        // If not JSON, treat as plain text (old format or manual entry)
+        
         console.error('Invalid QR data: Not in valid JSON format', parseError);
       }
 
