@@ -395,7 +395,7 @@ export const sendMassEmail = async (req, res) => {
           </html>
         `;
 
-        // ✅ SEND EMAIL USING SENDGRID (replaced nodemailer)
+        // SEND EMAIL USING SENDGRID 
         await sgMail.send({
           to: registration.email,
           from: process.env.EMAIL_FROM,
