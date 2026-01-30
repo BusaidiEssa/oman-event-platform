@@ -15,7 +15,7 @@ export const signup = async (req, res) => {
     // Hash the password using argo2id hash function with parameters recommended by OWASP 2026
     const hashedPassword = await argon2.hash(password, {
       type: argon2.argon2id,
-      memoryCost: 19546,
+      memoryCost: 19456,
       timeCost: 2,      
       parallelism: 1
     });
