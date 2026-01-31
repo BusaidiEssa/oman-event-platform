@@ -23,16 +23,23 @@ const QRScannerTab = ({ onCheckIn, isLoading, checkInResult }) => {
       // Try to parse as JSON first (new format)
       try {
         const qrData = JSON.parse(scannedText);
+        console.log('Parsed QR data:', qrData);
+        
         // Extract the registrationId which is used as the qrCode in the database
         const registrationId = qrData.registrationId || qrData.qrCode;
+        
         if (registrationId) {
-          onCheckIn(registrationId);
+          console.log('Using registrationId:', registrationId);
+          // Pass the entire scannedText (JSON string) to the check-in handler
+          // The backend will parse it
+          onCheckIn(scannedText);
         } else {
           console.error('No registrationId found in QR data');
         }
       } catch (parseError) {
-        
-        console.error('Invalid QR data: Not in valid JSON format', parseError);
+        // If it's not JSON, it might be a plain registrationId
+        console.log('Not JSON, using as plain registrationId:', scannedText);
+        onCheckIn(scannedText);
       }
 
       // Clear after 2 seconds to allow re-scanning
