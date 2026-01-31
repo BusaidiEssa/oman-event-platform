@@ -179,9 +179,19 @@ export const deleteRegistration = async (req, res) => {
 //handle checkin
 export const checkIn = async (req, res) => {
   try {
-    const { qrCode } = req.body;
+    let { qrCode } = req.body;
 
-    const registration = await Registration.findOne({ qrCode });
+    // Try to parse QR code if it's JSON
+    let registrationId = qrCode;
+    try {
+      const parsed = JSON.parse(qrCode);
+      registrationId = parsed.registrationId || parsed.qrCode || qrCode;
+    } catch (e) {
+      // If parsing fails, use qrCode as-is (it's already the registrationId)
+      registrationId = qrCode;
+    }
+
+    const registration = await Registration.findOne({ qrCode: registrationId });
     if (!registration) {
       return res.status(404).json({ message: 'Registration not found' });
     }
