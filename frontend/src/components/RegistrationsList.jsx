@@ -36,29 +36,16 @@ const RegistrationsList = ({ eventId, event }) => {
     }
   };
   const performCheckIn = async (qrCodeData) => {
-    // Ensure only object format is handled
-    if (typeof qrCodeData !== "object" || (!qrCodeData.registrationId && !qrCodeData.qrCode)) {
-      setCheckInResult({
-        success: false,
-        message: "Invalid QR code data format",
-      });
-
-      // Auto-clear result after 3 seconds
-      setTimeout(() => {
-        setCheckInResult(null);
-      }, 3000);
-      return; // Exit early for invalid format
-    }
-
-    // Extract the registrationId or qrCode
-    const qrCode = qrCodeData.registrationId || qrCodeData.qrCode;
-
     setCheckInLoading(true);
     setCheckInResult(null);
 
     try {
+      console.log('Raw QR Code Data received:', qrCodeData);
+
+      // Send the raw qrCodeData to the backend
+      // The backend will handle parsing it
       const response = await api.post("/registrations/checkin", {
-        qrCode: qrCode.trim(),
+        qrCode: qrCodeData, // Send the entire scanned text
       });
 
       setCheckInResult({
@@ -93,7 +80,6 @@ const RegistrationsList = ({ eventId, event }) => {
       setCheckInLoading(false);
     }
   };
- 
 
   return (
     <div className="space-y-6">
